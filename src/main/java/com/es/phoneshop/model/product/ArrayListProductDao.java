@@ -17,7 +17,11 @@ public class ArrayListProductDao implements ProductDao {
 
     public ArrayListProductDao() {
         this.products = new ArrayList<>();
-        this.saveSampleProducts();
+        try {
+            this.saveSampleProducts();
+        } catch (ProductNotFoundException e) {
+            throw new RuntimeException("ProductNotFoundException with saveSampleProduct");
+        }
     }
 
     public ArrayListProductDao(List<Product> products) {
@@ -33,6 +37,8 @@ public class ArrayListProductDao implements ProductDao {
 
     @Override
     public Product getProduct(Long id) throws  ProductNotFoundException { // или Optional, или NoSuchElementException, или свой Checked-exception
+        if (id == null)
+            throw new ProductNotFoundException("Product id cant be null");
         this.lock.readLock().lock();
         try{
             return this.products.stream()
@@ -42,7 +48,6 @@ public class ArrayListProductDao implements ProductDao {
         }finally {
             this.lock.readLock().unlock();
         }
-
     }
 
     @Override
@@ -67,7 +72,10 @@ public class ArrayListProductDao implements ProductDao {
     }
 
     @Override
-    public void save(Product product) {
+    public void save(Product product) throws ProductNotFoundException {
+        if (product == null) {
+            throw new ProductNotFoundException("trying to save null Product");
+        }
         this.lock.writeLock().lock();
         try {
             Long id = product.getId();
@@ -107,7 +115,7 @@ public class ArrayListProductDao implements ProductDao {
         }
     }
 
-    private void saveSampleProducts(){
+    private void saveSampleProducts() throws ProductNotFoundException {
         Currency usd = Currency.getInstance("USD");
         this.save(new Product("sgs", "Samsung Galaxy S", new BigDecimal(100), usd, 100, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S.jpg"));
         this.save(new Product("sgs3", "Samsung Galaxy S III", new BigDecimal(300), usd, 5, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S%20III.jpg"));
