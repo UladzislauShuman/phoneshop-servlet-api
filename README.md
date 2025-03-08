@@ -8,7 +8,7 @@
     + Learn TDD
     + boundary testing
     + code coverage
-    +- Learn junit4
+    + Learn junit4
     + DAO-Concept
     +- Read carefully Chapters 2 (The servlet instance)
     +- Learn mockito
@@ -27,5 +27,7 @@ Task 1.6
 
 Homework1
     + Set up remote debugging via Intellij
-    - Implement ArrayListProductDaoTest using Mockito Too
+    + Implement ArrayListProductDaoTest using Mockito Too (у меня там нет зависимостей таких, чтобы их мокать
+                                                            поэтому думаю что не нужно и противоречие между
+                                                            заданиями решимо)                                                      
     

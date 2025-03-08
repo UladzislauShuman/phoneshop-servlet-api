@@ -1,8 +1,14 @@
 package com.es.phoneshop.model.product;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.junit.runners.Parameterized;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Currency;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -11,6 +17,13 @@ import java.util.concurrent.Executors;
 
 import static org.junit.Assert.*;
 
+/*
+прочитав и посмотрев примеры документации JUnit для
+я решил опробовать некоторые возможности (по среднему уровню здравости)
+ */
+
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@RunWith(Parameterized.class)
 public class ArrayListProductDaoTest
 {
     private ProductDao productDao;
@@ -20,7 +33,21 @@ public class ArrayListProductDaoTest
     private Product productWithStockLessZero;
     private Product productNullPrice;
 
-    @Before
+    private Product productWithSomeNullFields;
+    public ArrayListProductDaoTest(Product product) {
+        this.productWithSomeNullFields = product;
+    }
+
+    @Parameterized.Parameters
+    public static Collection<Product> data_save() {
+        Currency usd = Currency.getInstance("USD");
+        return Arrays.asList(
+                new Product("sgs", null, new BigDecimal(100), usd, 100, null),
+                new Product(null, "description", null, null, 9, "url")
+        );
+    }
+
+    @Before // BeforeClass
     public void setup() {
         Currency usd = Currency.getInstance("USD");
         this.existsProduct = new Product(1L,"sgs", "Samsung Galaxy S", new BigDecimal(100), usd, 100, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S.jpg");
@@ -130,14 +157,7 @@ public class ArrayListProductDaoTest
         Currency usd = Currency.getInstance("USD");
         this.productDao = new ArrayListProductDao();
         this.productDao.save(
-                new Product(
-                        "sgs",
-                       null,
-                        new BigDecimal(100),
-                        usd,
-                        100,
-                        null
-                )
+                this.productWithSomeNullFields
         );
         assertFalse(this.productDao.findProducts().isEmpty());
     }
