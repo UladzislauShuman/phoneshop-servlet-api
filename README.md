@@ -10,8 +10,8 @@
     + code coverage
     +- Learn junit4
     + DAO-Concept
-    - Read carefully Chapters 2 (The servlet instance)
-    - Learn mockito
+    +- Read carefully Chapters 2 (The servlet instance)
+    +- Learn mockito
 
 Практика
 Task 1.5
@@ -22,9 +22,10 @@ Task 1.5
     + Implement ArrayListProductDaoTest using junit4
 
 Task 1.6
-    - Inject ArrayListProductDao into ProductListPageServlet during servlet initialization.
-    - Implement ProductListServletTest using junit4 and mockito
+    + Inject ArrayListProductDao into ProductListPageServlet during servlet initialization.
+    + Implement ProductListServletTest using junit4 and mockito
 
 Homework1
-    + Set up remote debugging via Intellij 
+    + Set up remote debugging via Intellij
+    - Implement ArrayListProductDaoTest using Mockito Too
     
