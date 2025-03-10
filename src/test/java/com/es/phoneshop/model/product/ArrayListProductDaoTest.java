@@ -15,8 +15,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 /*
 прочитав и посмотрев примеры документации JUnit для
 я решил опробовать некоторые возможности (по среднему уровню здравости)
@@ -169,7 +171,7 @@ public class ArrayListProductDaoTest
         assertEquals(
                 this.existsProduct,
                 this.productDao.getProduct(this.existsProduct.getId())
-                );
+        );
     }
     private void changeProduct(Product product) {
         product.setDescription("changed");
@@ -240,4 +242,3 @@ public class ArrayListProductDaoTest
         assertTrue(productDao.findProducts().size() >= 0);
     }
 }
-

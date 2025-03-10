@@ -11,8 +11,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 public class ArrayListProductDao implements ProductDao {
-    private AtomicLong maxId = new AtomicLong(0);  //AtomicLong?
-    private List<Product> products;
+    private Long maxId = 0L;  //Long, тк и так потокобезопасен
+    private final List<Product> products;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     public ArrayListProductDao() {
@@ -28,7 +28,7 @@ public class ArrayListProductDao implements ProductDao {
         this.products = new ArrayList<>();
         for (Product product : products) {
             if (product != null) {
-                product.setId(this.maxId.incrementAndGet());
+                product.setId(++this.maxId);
                 this.products.add(product);
             }
         }
@@ -44,10 +44,14 @@ public class ArrayListProductDao implements ProductDao {
             return this.products.stream()
                     .filter(product -> id.equals(product.getId()))
                     .findAny()
-                    .orElseThrow(() -> new ProductNotFoundException("Product with id " + id + "not found")); // может сделать отдельный шаблон?
+                    .orElseThrow(() -> this.getProdcutFoundExceptionWithProductId(id)); // method reference "не вставиться"
         }finally {
             this.lock.readLock().unlock();
         }
+    }
+
+    private ProductNotFoundException getProdcutFoundExceptionWithProductId(Long id) {
+        return new ProductNotFoundException("Product with id " + id + "not found");// может сделать отдельный шаблон?
     }
 
     @Override
@@ -80,14 +84,14 @@ public class ArrayListProductDao implements ProductDao {
         try {
             Long id = product.getId();
             if (id == null) {
-                product.setId(this.maxId.incrementAndGet()); // пока он добавляется как новый
+                product.setId(++this.maxId); // пока он добавляется как новый
                 this.products.add(product);
                 return;
             }
             this.products.stream()
                     .filter(product_ -> id.equals(product_.getId()))
                     .findFirst()
-                    .ifPresentOrElse(product_ -> { // если найден, то обновлняем
+                    .ifPresentOrElse(product_ -> { // если найден, то обновляем
                         product_.setDescription(product.getDescription());
                         product_.setImageUrl(product.getImageUrl());
                         product_.setPrice(product.getPrice());
@@ -95,7 +99,7 @@ public class ArrayListProductDao implements ProductDao {
                         product_.setStock(product.getStock());
                         product_.setCode(product.getCode());
                     }, () -> {
-                        product.setId(this.maxId.incrementAndGet()); // пока он добавляется как новый
+                        product.setId(++this.maxId); // пока он добавляется как новый
                         this.products.add(product);
                     });
         } finally {
