@@ -3,20 +3,14 @@ package com.es.phoneshop.model.product;
 import com.es.phoneshop.model.product.exceptions.ProductNotFoundException;
 import org.codehaus.plexus.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
-public class ArrayListProductDao implements ProductDao {
+public class HashMapProductDao implements ProductDao {
 
     private static volatile ProductDao instance;
     public static ProductDao getInstance() {
@@ -25,18 +19,18 @@ public class ArrayListProductDao implements ProductDao {
         }
         synchronized (ArrayListProductDao.class) {
             if (instance == null) { // для ситуации, когда два потока одновременно зашли
-                instance = new ArrayListProductDao();
+                instance = new HashMapProductDao();
             }
             return instance;
         }
     }
 
     private Long maxId = 0L;  //Long, тк и так потокобезопасен
-    private final List<Product> products;
+    private final Map<Long,Product> products;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    private ArrayListProductDao() {
-        this.products = new ArrayList<>();
+    private HashMapProductDao() {
+        this.products = new HashMap<>();
     }
 
     @Override
@@ -45,8 +39,11 @@ public class ArrayListProductDao implements ProductDao {
 
         this.lock.readLock().lock();
         try{
-            return getProductById(id)
-                    .orElseThrow(() -> this.getProdcutFoundExceptionWithProductId(id)); // method reference "не вставиться"
+            Product product = products.get(id);
+            if (product == null) {
+                throw getProdcutFoundExceptionWithProductId(id);
+            }
+            return product;
         }finally {
             this.lock.readLock().unlock();
         }
@@ -56,11 +53,7 @@ public class ArrayListProductDao implements ProductDao {
         if (id == null)
             throw new ProductNotFoundException(ProductNotFoundException.ID_IS_NULL);
     }
-    private Optional<Product> getProductById(Long id) {
-        return this.products.stream()
-                .filter(product -> id.equals((product.getId())))
-                .findAny();
-    }
+
     private ProductNotFoundException getProdcutFoundExceptionWithProductId(Long id) {
         return new ProductNotFoundException(String.format(ProductNotFoundException.ID_NOT_FOUND, id));
     }
@@ -80,10 +73,6 @@ public class ArrayListProductDao implements ProductDao {
     }
 
     private List<Product> findProductsInternal(String query, SortField sortField, SortOrder sortOrder) {
-        /*
-        // если убрать этот участок кода
-        // то всё будет работать, но будет тогда гора лишних вычислений
-         */
         if (isQueryEmpty(query))
             return handleEmptyQuery(sortField, sortOrder);
 
@@ -120,7 +109,7 @@ public class ArrayListProductDao implements ProductDao {
     }
 
     private Stream<Product> createFilteredProductsStream() {
-        return  this.products.stream()
+        return  this.products.values().stream()
                 .filter(Objects::nonNull)
                 .filter(this::isProductPriceNonNull)
                 .filter(this::isProductInStock);
@@ -210,18 +199,11 @@ public class ArrayListProductDao implements ProductDao {
             if (isProductIdNull(id)) {
                 saveProductAsInexisted(product);
             } else {
-                this.getProductById(id)
-                        .ifPresentOrElse(product_ -> { // если найден, то обновляем
-                            product_.setDescription(product.getDescription());
-                            product_.setImageUrl(product.getImageUrl());
-                            product_.setPrice(product.getPrice());
-                            product_.setCurrency(product.getCurrency());
-                            product_.setStock(product.getStock());
-                            product_.setCode(product.getCode());
-                            product_.setProductHistories(product.getProductHistories());
-                        }, () -> {
-                            saveProductAsInexisted(product);
-                        });
+                if (products.containsKey(id)) {
+                    products.put(id, product);
+                } else {
+                    saveProductAsInexisted(product);
+                }
             }
 
         } finally {
@@ -239,15 +221,14 @@ public class ArrayListProductDao implements ProductDao {
     }
     private void saveProductAsInexisted(Product product) { // нужно ли его защищать от потоков, если он только безопасно вызывается?
         product.setId(++this.maxId);
-        this.products.add(product);
+        products.put(product.getId(),product);
     }
 
     @Override
     public void delete(Long id) { // наверное пусть Mockito грузит данные, а JUnit удаляет
         this.lock.writeLock().lock();
         try {
-            this.products.removeIf(product -> Objects.equals(id, product.getId())); // безопасен от NullPointerException
-            //я уже захотел вызвать this.findProduct, но у меня бы тогда был бы deadlock
+            products.remove(id);
         } finally {
             this.lock.writeLock().unlock();
         }
