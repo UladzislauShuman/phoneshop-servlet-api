@@ -8,24 +8,33 @@
   <p>
     Welcome to Expert-Soft training!
   </p>
-  <table>
-    <thead>
-      <tr>
-        <td>Image</td>
-        <td>Description</td>
-        <td class="price">Price</td>
-      </tr>
-    </thead>
-    <c:forEach var="product" items="${products}">
-      <tr>
-        <td>
-          <img class="product-tile" src="${product.imageUrl}">
-        </td>
-        <td>${product.description}</td>
-        <td class="price">
-          <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="${product.currency.symbol}"/>
-        </td>
-      </tr>
-    </c:forEach>
-  </table>
+
+  <tags:searchForm/>
+  <tags:productTable products="${products}"/>
+
 </tags:master>
+
+<style>
+  .tooltip {
+    display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    font-size: 14px;
+    z-index: 1000;
+    width: 250px;
+    left: 100%;
+  }
+
+  .price {
+    position: relative;
+    cursor: pointer; /* Добавим, чтобы было понятно, что можно навести */
+  }
+
+  .price:hover .tooltip {
+    display: block;
+  }
+
+</style>
