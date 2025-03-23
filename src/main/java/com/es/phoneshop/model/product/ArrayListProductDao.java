@@ -46,7 +46,7 @@ public class ArrayListProductDao implements ProductDao {
         this.lock.readLock().lock();
         try{
             return getProductById(id)
-                    .orElseThrow(() -> this.getProdcutFoundExceptionWithProductId(id)); // method reference "не вставиться"
+                    .orElseThrow(() -> this.getProductFoundExceptionWithProductId(id)); // method reference "не вставиться"
         }finally {
             this.lock.readLock().unlock();
         }
@@ -61,7 +61,7 @@ public class ArrayListProductDao implements ProductDao {
                 .filter(product -> id.equals((product.getId())))
                 .findAny();
     }
-    private ProductNotFoundException getProdcutFoundExceptionWithProductId(Long id) {
+    private ProductNotFoundException getProductFoundExceptionWithProductId(Long id) {
         return new ProductNotFoundException(String.format(ProductNotFoundException.ID_NOT_FOUND, id));
     }
 

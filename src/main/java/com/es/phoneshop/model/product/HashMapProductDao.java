@@ -17,7 +17,7 @@ public class HashMapProductDao implements ProductDao {
         if (instance != null) {
             return instance;
         }
-        synchronized (ArrayListProductDao.class) {
+        synchronized (HashMapProductDao.class) {
             if (instance == null) { // для ситуации, когда два потока одновременно зашли
                 instance = new HashMapProductDao();
             }
@@ -41,7 +41,7 @@ public class HashMapProductDao implements ProductDao {
         try{
             Product product = products.get(id);
             if (product == null) {
-                throw getProdcutFoundExceptionWithProductId(id);
+                throw getProductFoundExceptionWithProductId(id);
             }
             return product;
         }finally {
@@ -54,7 +54,7 @@ public class HashMapProductDao implements ProductDao {
             throw new ProductNotFoundException(ProductNotFoundException.ID_IS_NULL);
     }
 
-    private ProductNotFoundException getProdcutFoundExceptionWithProductId(Long id) {
+    private ProductNotFoundException getProductFoundExceptionWithProductId(Long id) {
         return new ProductNotFoundException(String.format(ProductNotFoundException.ID_NOT_FOUND, id));
     }
 

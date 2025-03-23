@@ -11,8 +11,12 @@
   </context-param>
 
   <listener>
-    <listener-class>com.es.phoneshop.web.ProductDemoDataServletContextListener</listener-class>
+    <listener-class>com.es.phoneshop.web.listeners.DependenciesServletContextListener</listener-class>
   </listener>
+<!--  <listener>-->
+<!--    <listener-class>com.es.phoneshop.web.listeners.ProductDemoDataServletContextListener</listener-class>-->
+<!--  </listener>-->
+
 
   <servlet>
     <servlet-name>productList</servlet-name>
