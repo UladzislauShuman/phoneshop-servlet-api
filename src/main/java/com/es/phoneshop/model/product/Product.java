@@ -1,10 +1,12 @@
 package com.es.phoneshop.model.product;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Currency;
+import java.util.List;
 import java.util.Objects;
 
-public class Product {
+public class Product implements Cloneable{
     private Long id;
     private String code;
     private String description;
@@ -14,6 +16,8 @@ public class Product {
     private Currency currency;
     private int stock;
     private String imageUrl;
+
+    List<ProductHistory> productHistories;
 
     public Product() {
     }
@@ -26,6 +30,7 @@ public class Product {
         this.currency = currency;
         this.stock = stock;
         this.imageUrl = imageUrl;
+        this.productHistories = new ArrayList<>();
     }
 
     public Product(String code, String description, BigDecimal price, Currency currency, int stock, String imageUrl) {
@@ -35,7 +40,32 @@ public class Product {
         this.currency = currency;
         this.stock = stock;
         this.imageUrl = imageUrl;
+        this.productHistories = new ArrayList<>();
     }
+
+    public Product(String code, String description, BigDecimal price, Currency currency, int stock, String imageUrl,
+                   List<ProductHistory> productHistories) {
+        this.code = code;
+        this.description = description;
+        this.price = price;
+        this.currency = currency;
+        this.stock = stock;
+        this.imageUrl = imageUrl;
+        this.productHistories = productHistories;
+    }
+
+    public Product(Long id, String code, String description, BigDecimal price, Currency currency, int stock, String imageUrl,
+                   List<ProductHistory> productHistories) {
+        this.id = id;
+        this.code = code;
+        this.description = description;
+        this.price = price;
+        this.currency = currency;
+        this.stock = stock;
+        this.imageUrl = imageUrl;
+        this.productHistories = productHistories;
+    }
+
 
     public Long getId() {
         return id;
@@ -104,11 +134,77 @@ public class Product {
                 Objects.equals(this.price, product.price) &&
                 Objects.equals(this.currency, product.currency) &&
                 Objects.equals(this.description, product.description) &&
-                Objects.equals(this.imageUrl, product.imageUrl);
+                Objects.equals(this.imageUrl, product.imageUrl) &&
+                Objects.equals(this.productHistories, product.productHistories);
+    }
+
+    public boolean equalsWithOutId(Product product) {
+        return this.stock == product.stock &&
+                Objects.equals(this.code, product.code) &&
+                Objects.equals(this.price, product.price) &&
+                Objects.equals(this.currency, product.currency) &&
+                Objects.equals(this.description, product.description) &&
+                Objects.equals(this.imageUrl, product.imageUrl) &&
+                Objects.equals(this.productHistories, product.productHistories);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.id, this.code, this.price, this.description, this.currency, this.imageUrl, this.stock);
+        return Objects.hash(
+                this.id,
+                this.code,
+                this.price,
+                this.description,
+                this.currency,
+                this.imageUrl,
+                this.stock,
+                this.productHistories
+        );
+    }
+
+    public List<ProductHistory> getProductHistories() {
+        return productHistories;
+    }
+
+    public void setProductHistories(List<ProductHistory> productHistories) {
+        this.productHistories = productHistories;
+    }
+
+    @Override
+    public Product clone() {
+        Product clonedProduct = new Product();
+
+        clonedProduct.setId(this.id);
+        clonedProduct.setCode(this.code);
+        clonedProduct.setDescription(this.description);
+        clonedProduct.setPrice(this.price);
+        clonedProduct.setCurrency(this.currency);
+        clonedProduct.setStock(this.stock);
+        clonedProduct.setImageUrl(this.imageUrl);
+
+        if (this.productHistories != null) {
+            List<ProductHistory> clonedHistories = new ArrayList<>();
+            for (ProductHistory history : this.productHistories) {
+                clonedHistories.add(history.clone());
+            }
+            clonedProduct.setProductHistories(clonedHistories);
+        } else {
+            clonedProduct.setProductHistories(new ArrayList<>()); // or null, depending on desired behavior
+        }
+
+        return clonedProduct;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", code='" + code + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", currency=" + currency +
+                ", stock=" + stock +
+                ", imageUrl='" + imageUrl + '\'' +
+                '}';
     }
 }
