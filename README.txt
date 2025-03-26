@@ -88,3 +88,57 @@ Homework2
     ```    
     - разделить тесты
     ```
+
+Лекция 3. 17.03.2025 -- 24.03.2025
+
+Теория
+    ```
+    + HTTP methods
+    +- Read carefully Chapters 5
+    - Read carefully Chapter 7
+    ```
+
+Практика
+    ```
+    Task 3.1: CartService
+    + Implement Cart, CartItem, and dead simple CartService.add(Long productId, Int quantity) storing cart in a field.
+    ```
+    ```
+    Task 3.2: PDP add2cart
+    + Implement ProductDetailsPageServlet.doPost() to add product to cart.
+    + Display “Not a number” error message if a quantity can’t be parsed.
+    + Display “Not enough stock” error message if there is not enough stock.
+    + Display “Added to cart successfully” message if the product was added to cart.
+        + Redirect to /products/* Pass success message via HTTP parameter to survive redirect.
+    todo : удостовериться + Use browser locale to parse / format quantity.
+    ```
+    ```
+    Task 3.3: HttpSessionCartService
+    + Refactor CartService to store cart in HTTP session.
+    ```
+    ```
+    Task 3.4 [selfcheck]: Implement 3 recently viewed products
+    + Implement a new section showing 3 recently viewed products.
+        + сделать tag
+    + The section shall be displayed at the bottom of the site.
+    + “Recently viewed” means the product was opened on PDP.
+    + The content of the section shall be customer specific.
+        + хранить в session (по аналогии с Cart)
+    ```
+Homework3
+
+По возможности ("моё желание")
+    ```
+    + избавиться от Cart getCart(HttpServletRequest request);
+    ```
+Тестирование
+    + Cart
+    + DefaultCartService
+    + HashMapProductDao
+    + DefaultRecentlyViewedProductsService
+    + LinkedListRecentlyViewedProducts
+    + HttpSessionRecentlyViewedProductsStorage
+    + HttpSessionCartStorage
+    + DemoDataInitializer
+    + PLPServlet
+    + PDPServlet

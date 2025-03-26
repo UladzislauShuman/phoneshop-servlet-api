@@ -1,18 +1,17 @@
 package com.es.phoneshop.model.product;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
 import java.util.Objects;
 
-public class Product implements Cloneable{
+public class Product implements Cloneable, Serializable {
     private Long id;
     private String code;
     private String description;
-    /** null means there is no price because the product is outdated or new */
     private BigDecimal price;
-    /** can be null if the price is null */
     private Currency currency;
     private int stock;
     private String imageUrl;

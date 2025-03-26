@@ -1,14 +1,14 @@
-package com.es.phoneshop.model.product.ArrayListProductDaoTests;
+package com.es.phoneshop.model.product.ProductDaoTests;
 
+import com.es.phoneshop.model.product.ProductDaoTests.configuration.DemoDataInitializerHashMap;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
 import com.es.phoneshop.model.product.exceptions.ProductNotFoundException;
 import com.es.phoneshop.model.product.cunsomorder.Priority;
 import com.es.phoneshop.model.product.cunsomorder.PriorityOrderer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigDecimal;
 import java.util.Currency;
@@ -22,28 +22,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(PriorityOrderer.class)
 public class SaveTest {
-    private static ProductDao productDao;
 
-    @BeforeAll
-    public static void setup(){
-        productDao = DemoDataInitializer.productDao;
-        DemoDataInitializer.setup();
-    }
+    @BeforeEach
+    void setUp() {}
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("com.es.phoneshop.model.product.ProductDaoTests.configuration.ProductDaoArgumentsProvider#productDaoProvider")
     @Priority(1)
-    public void testSaveNewProduct() throws ProductNotFoundException { //
-        productDao.save(DemoDataInitializer.product);
-        assertTrue(DemoDataInitializer.product.getId() > 0);
-        Product result = productDao.getProduct(Long.valueOf(DemoDataInitializer.product.getId()));
+    public void testSaveNewProduct(ProductDao productDao) throws ProductNotFoundException { //
+        productDao.save(DemoDataInitializerHashMap.product);
+        assertTrue(DemoDataInitializerHashMap.product.getId() > 0);
+        Product result = productDao.getProduct(Long.valueOf(DemoDataInitializerHashMap.product.getId()));
         assertNotNull(result);
         assertEquals("test-product", result.getCode());
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("com.es.phoneshop.model.product.ProductDaoTests.configuration.ProductDaoArgumentsProvider#productDaoProvider")
     @Priority(1)
-    public void testSaveExitingProduct() throws ProductNotFoundException {
-        Product existsProduct = DemoDataInitializer.existsProduct.clone();
+    public void testSaveExitingProduct(ProductDao productDao) throws ProductNotFoundException {
+        Product existsProduct = DemoDataInitializerHashMap.existsProduct.clone();
         this.changeProduct(existsProduct);
         productDao.save(existsProduct);
         assertEquals(
@@ -60,27 +58,24 @@ public class SaveTest {
         product.setCode("changed");
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("com.es.phoneshop.model.product.ProductDaoTests.configuration.ProductDaoArgumentsProvider#productDaoProvider")
     @Priority(1)
-    public void testSaveNullProduct() throws ProductNotFoundException {
+    public void testSaveNullProduct(ProductDao productDao) throws ProductNotFoundException {
         assertThrows(ProductNotFoundException.class, () -> {
             productDao.save(null);
         });
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("com.es.phoneshop.model.product.ProductDaoTests.configuration.ProductDaoArgumentsProvider#productDaoProvider")
     @Priority(2)
-    public void testSaveNewProductWithSomeNullFields() throws ProductNotFoundException {
+    public void testSaveNewProductWithSomeNullFields(ProductDao productDao) throws ProductNotFoundException {
         productDao.clear();
         Currency usd = Currency.getInstance("USD");
         productDao.save(
-                DemoDataInitializer.productWithSomeNullFields
+                DemoDataInitializerHashMap.productWithSomeNullFields
         );
         assertFalse(productDao.findProducts(null,null,null).isEmpty());
-    }
-
-    @AfterAll
-    public static void afterTest() {
-        DemoDataInitializer.afterTest();
     }
 }

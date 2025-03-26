@@ -1,5 +1,6 @@
 package com.es.phoneshop.model.product;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -7,7 +8,7 @@ import java.util.Currency;
 import java.util.Objects;
 import java.util.Date;
 
-public class ProductHistory implements Cloneable{
+public class ProductHistory implements Cloneable, Serializable {
     private LocalDate date; // или поменять на Date
     private BigDecimal price;
     private Currency currency;

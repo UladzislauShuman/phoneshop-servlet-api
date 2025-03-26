@@ -1,11 +1,12 @@
-package com.es.phoneshop.model.product.ArrayListProductDaoTests;
+package com.es.phoneshop.model.product.ProductDaoTests;
 
+import com.es.phoneshop.model.product.ProductDaoTests.configuration.DemoDataInitializerHashMap;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
 import com.es.phoneshop.model.product.exceptions.ProductNotFoundException;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Currency;
 import java.util.List;
@@ -17,16 +18,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ConcurrentTest {
-    private static ProductDao productDao;
 
-    @BeforeAll
-    public static void setup(){
-        productDao = DemoDataInitializer.productDao;
-        DemoDataInitializer.setup();
-    }
+    @BeforeEach
+    void setUp() {}
 
-    @Test
-    public void testConcurrentAccess() throws InterruptedException {
+    @ParameterizedTest
+    @MethodSource("com.es.phoneshop.model.product.ProductDaoTests.configuration.ProductDaoArgumentsProvider#productDaoProvider")
+    public void testConcurrentAccess(ProductDao productDao) throws InterruptedException {
         int threadCount = 10;
         CountDownLatch latch = new CountDownLatch(threadCount);
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
@@ -35,7 +33,7 @@ public class ConcurrentTest {
             executorService.execute(()  -> {
                 try {
                     Currency usd = Currency.getInstance("USD");
-                    Product product_ = DemoDataInitializer.product;
+                    Product product_ = DemoDataInitializerHashMap.product;
                     productDao.save(product_);
 
                     List<Product> products = productDao.findProducts(null,null,null);
@@ -59,10 +57,5 @@ public class ConcurrentTest {
         executorService.shutdown();
         assertFalse(productDao.findProducts(null,null,null).contains(null));
         assertTrue(productDao.findProducts(null,null,null).size() >= 0);
-    }
-
-    @AfterAll
-    public static void afterTest() {
-        DemoDataInitializer.afterTest();
     }
 }
