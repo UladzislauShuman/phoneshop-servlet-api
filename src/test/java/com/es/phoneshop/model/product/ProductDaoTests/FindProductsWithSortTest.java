@@ -116,13 +116,12 @@ public class FindProductsWithSortTest {
     @ParameterizedTest
     @MethodSource("com.es.phoneshop.model.product.ProductDaoTests.configuration.ProductDaoArgumentsProvider#productDaoProvider")
     public void testFindProductsQueryPriceDesc(ProductDao productDao) {
-        List<Product> productsDemo = DemoDataInitializerHashMap.getDemoData_Samsung_Galaxy_S_II_PriceDesc();
+        List<Product> productsDemo = DemoDataInitializerHashMap.getDemoData_Galaxy_S_PriceDesc();
         List<Product> productsDao = productDao.findProducts(
-                "Samsung Galaxy S II",
+                "Galaxy S",
                 SortField.PRICE.toString(),
                 SortOrder.DESC.toString()
         );
-
         if (isProductsDaoAndDemoEqualSize(productsDao,productsDemo))
             fail("productsDao.size() != productsDemo.size()\n" + productsDao.size() + " != " + productsDemo.size()  );
 

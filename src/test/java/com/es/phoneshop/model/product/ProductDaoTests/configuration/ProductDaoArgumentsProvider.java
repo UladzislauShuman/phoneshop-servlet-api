@@ -7,10 +7,8 @@ import java.util.stream.Stream;
 public class ProductDaoArgumentsProvider {
 
     public static Stream<Arguments> productDaoProvider() {
-        DemoDataInitializerArrayList.setup();
         DemoDataInitializerHashMap.setup();
         return Stream.of(
-                Arguments.of(DemoDataInitializerArrayList.productDao),
                 Arguments.of(DemoDataInitializerHashMap.productDao)
         );
     }

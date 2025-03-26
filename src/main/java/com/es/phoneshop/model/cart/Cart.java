@@ -15,11 +15,9 @@ public class Cart implements Serializable {
 
     public List<CartItem> getItems() {
         return items.values().stream().toList();
-    } // может просто вернуть Collection?
-
-    public void setItems(List<CartItem> items) {
-
     }
+
+    public void setItems(List<CartItem> items) {}
 
     public void add(CartItem cartItem) {
         if (cartItem != null) {
@@ -39,7 +37,7 @@ public class Cart implements Serializable {
         if (product != null) {
             CartItem cartItem = items.get(product.getId());
             return cartItem == null ? 0 : cartItem.getQuantity();
-        } else { // или NullPointerException?
+        } else {
             return 0;
         }
 

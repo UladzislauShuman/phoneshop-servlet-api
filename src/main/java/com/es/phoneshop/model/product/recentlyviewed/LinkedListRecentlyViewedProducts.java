@@ -5,11 +5,13 @@ import com.es.phoneshop.model.product.Product;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-/*я посчитал, что делать его потокобезопасным не нужно, я его использую в "потокобезопасной среде"*/
 public class LinkedListRecentlyViewedProducts implements RecentlyViewedProducts {
-    private static final int capacity = 3;
+    private static final int CAPACITY = 3;
     private final LinkedList<Product> queue;
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     public LinkedListRecentlyViewedProducts() {
         this.queue = new LinkedList<>();
@@ -20,13 +22,23 @@ public class LinkedListRecentlyViewedProducts implements RecentlyViewedProducts 
 
     @Override
     public List<Product> getRecentlyViewedProductsList() {
-        return queue;
+        lock.readLock().lock();
+        try {
+            return new LinkedList<>(queue);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public void add(Product product) {
-        if (!isProductNull(product))
-            addToQueue(product);
+        lock.writeLock().lock();
+        try {
+            if (!isProductNull(product))
+                addToQueue(product);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     private boolean isProductNull(Product product) {
@@ -42,6 +54,6 @@ public class LinkedListRecentlyViewedProducts implements RecentlyViewedProducts 
 
 
     private boolean isQueueFull() {
-        return queue.size() == capacity;
+        return queue.size() == CAPACITY;
     }
 }

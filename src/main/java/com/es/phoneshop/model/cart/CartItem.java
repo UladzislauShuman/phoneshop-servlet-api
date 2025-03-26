@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 public class CartItem  implements Serializable {
     private Product product;
-    private int quantity; // int, а не Integer обозначает, что -- "сюда всегда вставляется нужное значени ..."
+    private int quantity;
 
     public CartItem(Product product, int quantity) {
         this.quantity = quantity;

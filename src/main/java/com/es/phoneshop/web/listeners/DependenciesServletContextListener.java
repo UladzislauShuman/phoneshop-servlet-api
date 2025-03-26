@@ -22,8 +22,8 @@ public class DependenciesServletContextListener implements ServletContextListene
 
     public DependenciesServletContextListener() {
         this.productDao = HashMapProductDao.getInstance();
-        this.recentlyViewedProductsService = DefaultRecentlyViewedProductsService.getInstance(productDao);
-        this.cartService = DefaultCartService.getInstance(productDao);
+        this.recentlyViewedProductsService = new DefaultRecentlyViewedProductsService(productDao);
+        this.cartService = new DefaultCartService(productDao);
         this.dataInitializer = new DemoDataInitializer(productDao);
     }
 
@@ -39,7 +39,6 @@ public class DependenciesServletContextListener implements ServletContextListene
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        // связь с БД разорвать и пр
         ServletContextListener.super.contextDestroyed(sce);
     }
 }
