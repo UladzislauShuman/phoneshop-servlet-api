@@ -46,11 +46,13 @@ body.product-list {
     left: 100%;
   }
 
-  .price, .quantity {
+  .price, .quantity, .stock, .cost{
     position: relative;
     cursor: pointer;
     text-align: right;
   }
+
+
 
   .price:hover .tooltip {
     display: block;

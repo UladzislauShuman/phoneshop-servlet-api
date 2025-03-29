@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Date;
 
 public class ProductHistory implements Cloneable, Serializable {
-    private LocalDate date; // или поменять на Date
+    private LocalDate date;
     private BigDecimal price;
     private Currency currency;
 
@@ -18,11 +18,13 @@ public class ProductHistory implements Cloneable, Serializable {
         this.date = date;
         this.price = price;
     }
+
     public Date getDateAsUtilDate() {
         return Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
-    public ProductHistory() {}
+    public ProductHistory() {
+    }
 
     public LocalDate getDate() {
         return date;

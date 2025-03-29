@@ -4,12 +4,13 @@ package com.es.phoneshop.web;
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.cart.CartService;
 import com.es.phoneshop.model.cart.OutOfStockException;
+import com.es.phoneshop.model.cart.storage.HttpSessionCartReader;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
 import com.es.phoneshop.model.product.exceptions.ProductNotFoundException;
-import com.es.phoneshop.model.product.recentlyviewed.LinkedListRecentlyViewedProducts;
 import com.es.phoneshop.model.product.recentlyviewed.RecentlyViewedProducts;
 import com.es.phoneshop.model.product.recentlyviewed.RecentlyViewedProductsService;
+import com.es.phoneshop.web.config.ErrorPageProperties;
 import com.es.phoneshop.web.listeners.DependenciesServletContextListener;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
@@ -23,10 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -65,14 +66,19 @@ public class ProductDetailsPageServletTest {
     private HttpSession session;
     @Mock
     private RecentlyViewedProducts recentlyViewedProducts;
+    @Mock
+    private Cart cart;
 
     @InjectMocks
     private ProductDetailsPageServlet servlet;
 
+    private final Long productId = 1L;
+    private Product product;
 
     @BeforeEach
     public void setup() {
-        MockitoAnnotations.openMocks(this);
+
+        product = new Product(1L,"testCode","testDescription",BigDecimal.TEN,null,10,"testImageUrl");
         servlet = new ProductDetailsPageServlet(productDao, cartService, recentlyViewedProductsService, servletContext);
     }
 
@@ -95,7 +101,7 @@ public class ProductDetailsPageServletTest {
 
         ProductDetailsPageServlet servlet = new ProductDetailsPageServlet();
 
-        assertThrows(ServletException.class, () -> servlet.init(config), "Expected ServletException to be thrown when CartService is null");
+        assertThrows(ServletException.class, () -> servlet.init(config), "test");
     }
 
     @Test
@@ -107,7 +113,7 @@ public class ProductDetailsPageServletTest {
 
         ProductDetailsPageServlet servlet = new ProductDetailsPageServlet();
 
-        assertThrows(ServletException.class, () -> servlet.init(config), "Expected ServletException to be thrown when RecentlyViewedProductsService is null");
+        assertThrows(ServletException.class, () -> servlet.init(config), "test");
     }
 
     @Test
@@ -119,7 +125,7 @@ public class ProductDetailsPageServletTest {
         servlet.doGet(request, response);
 
         verify(response).setStatus(HttpServletResponse.SC_NOT_FOUND);
-        verify(request).setAttribute(ProductDetailsPageServlet.ATTRIBUTE_PRODUCTCODE, TEST_BAD_ID);
+        verify(request).setAttribute(ProductDetailsPageServlet.ATTRIBUTE_PRODUCT_CODE, TEST_BAD_ID);
         verify(requestDispatcher).forward(request, response);
     }
 
@@ -134,37 +140,37 @@ public class ProductDetailsPageServletTest {
 
     @Test
     public void doGet_forwardsToProductJsp() throws ServletException, IOException {
-        Product product = new Product();
-        product.setId(PRODUCT_ID);
-        when(request.getPathInfo()).thenReturn(VALID_ID_PATH);
-        when(productDao.getProduct(PRODUCT_ID)).thenReturn(product);
-        when(request.getRequestDispatcher(ProductDetailsPageServlet.PRODUCT_JSP_PATH)).thenReturn(requestDispatcher);
+        when(request.getPathInfo()).thenReturn("/" + productId);
+        when(productDao.getProduct(productId)).thenReturn(product);
         when(request.getSession()).thenReturn(session);
-        doNothing().when(recentlyViewedProductsService).add(any(),any());
-
-        when(session.getAttribute(anyString())).thenReturn(new Cart());
-        when(session.getAttribute(anyString())).thenReturn(new LinkedListRecentlyViewedProducts());
+        when(recentlyViewedProductsService.createRecentlyViewedProducts(any())).thenReturn(recentlyViewedProducts);
+        when(request.getRequestDispatcher(ProductDetailsPageServlet.PRODUCT_JSP_PATH)).thenReturn(requestDispatcher);
 
         servlet.doGet(request, response);
 
-        verify(productDao).getProduct(PRODUCT_ID);
+        verify(productDao).getProduct(productId);
         verify(request).setAttribute(ProductDetailsPageServlet.ATTRIBUTE_PRODUCT, product);
+        verify(request).setAttribute(eq(ProductDetailsPageServlet.ATTRIBUTE_CART), any(Cart.class));
         verify(requestDispatcher).forward(request, response);
     }
 
 
     @Test
-    public void doPost_ProductNotFoundException() throws ServletException, IOException {
+    public void doPost_ProductNotFoundException() throws ServletException, IOException, OutOfStockException {
         when(request.getPathInfo()).thenReturn("/" + TEST_BAD_ID);
-        when(request.getLocale()).thenReturn(Locale.getDefault());
+        when(request.getLocale()).thenReturn(Locale.FRANCE);
         when(request.getParameter(ProductDetailsPageServlet.PARAMETER_QUANTITY)).thenReturn(TEST_QUANTITY);
-        when(productDao.getProduct(anyLong())).thenThrow(new ProductNotFoundException(TEST_MESSAGE));
-        when(request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
+        when(request.getRequestDispatcher(
+                ErrorPageProperties.getErrorPagePath(404).toString()
+        )).thenReturn(requestDispatcher);
+        when(request.getSession()).thenReturn(session);
+        when(HttpSessionCartReader.getCartFromSession(session)).thenReturn(cart);
+        doThrow(new ProductNotFoundException("test")).when(cartService).add(any(Cart.class), any(Long.class), anyInt());
 
         servlet.doPost(request, response);
 
         verify(response).setStatus(HttpServletResponse.SC_NOT_FOUND);
-        verify(request).setAttribute(ProductDetailsPageServlet.ATTRIBUTE_PRODUCTCODE, TEST_BAD_ID);
+        verify(request).setAttribute(ProductDetailsPageServlet.ATTRIBUTE_PRODUCT_CODE, TEST_BAD_ID);
         verify(requestDispatcher).forward(request, response);
     }
 

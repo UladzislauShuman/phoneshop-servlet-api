@@ -10,21 +10,28 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 
+import java.util.Currency;
+
 public class DependenciesServletContextListener implements ServletContextListener {
+    private static final String CURRENCY = "USD";
     public static final String ATTRIBUTE_PRODUCT_DAO = "productDao";
     public static final String ATTRIBUTE_RECENTLY_VIEWED_PRODUCTS_SERVICE = "recentlyViewedProductsService";
     public static final String ATTRIBUTE_CART_SERVICE = "cartService";
+    public static final String ATTRIBUTE_CURRENCY = "currency";
 
     private ProductDao productDao;
     private RecentlyViewedProductsService recentlyViewedProductsService;
     private CartService cartService;
     private DemoDataInitializer dataInitializer;
+    private Currency currency;
 
     public DependenciesServletContextListener() {
+        this.currency = Currency.getInstance(CURRENCY);
         this.productDao = HashMapProductDao.getInstance();
-        this.recentlyViewedProductsService = new DefaultRecentlyViewedProductsService(productDao);
+        this.recentlyViewedProductsService = new DefaultRecentlyViewedProductsService();
         this.cartService = new DefaultCartService(productDao);
-        this.dataInitializer = new DemoDataInitializer(productDao);
+        this.dataInitializer = new DemoDataInitializer(productDao, currency);
+
     }
 
     @Override
@@ -35,6 +42,7 @@ public class DependenciesServletContextListener implements ServletContextListene
         context.setAttribute(ATTRIBUTE_PRODUCT_DAO, productDao);
         context.setAttribute(ATTRIBUTE_RECENTLY_VIEWED_PRODUCTS_SERVICE, recentlyViewedProductsService);
         context.setAttribute(ATTRIBUTE_CART_SERVICE, cartService);
+        context.setAttribute(ATTRIBUTE_CURRENCY, currency);
     }
 
     @Override

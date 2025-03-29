@@ -12,11 +12,15 @@
         <tags:sortLink sort="description" order="asc"/>
         <tags:sortLink sort="description" order="desc"/>
       </td>
+      <td>
+         Quantity
+      </td>
       <td class="price">
         Price
         <tags:sortLink sort="price" order="asc"/>
         <tags:sortLink sort="price" order="desc"/>
       </td>
+      <td></td>
     </tr>
   </thead>
   <c:forEach var="product" items="${products}">

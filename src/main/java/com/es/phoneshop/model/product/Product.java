@@ -188,7 +188,7 @@ public class Product implements Cloneable, Serializable {
             }
             clonedProduct.setProductHistories(clonedHistories);
         } else {
-            clonedProduct.setProductHistories(new ArrayList<>()); // or null, depending on desired behavior
+            clonedProduct.setProductHistories(new ArrayList<>());
         }
 
         return clonedProduct;
