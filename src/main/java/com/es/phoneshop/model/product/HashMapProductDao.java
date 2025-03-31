@@ -1,14 +1,21 @@
+
 package com.es.phoneshop.model.product;
 
 import com.es.phoneshop.model.product.exceptions.ProductNotFoundException;
-import org.codehaus.plexus.util.StringUtils;
+import org.apache.maven.shared.utils.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 
 public class HashMapProductDao implements ProductDao {
 
@@ -17,15 +24,15 @@ public class HashMapProductDao implements ProductDao {
         if (instance != null) {
             return instance;
         }
-        synchronized (ArrayListProductDao.class) {
-            if (instance == null) { // для ситуации, когда два потока одновременно зашли
+        synchronized (HashMapProductDao.class) {
+            if (instance == null) {
                 instance = new HashMapProductDao();
             }
             return instance;
         }
     }
 
-    private Long maxId = 0L;  //Long, тк и так потокобезопасен
+    private Long maxId = 0L;
     private final Map<Long,Product> products;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -34,14 +41,14 @@ public class HashMapProductDao implements ProductDao {
     }
 
     @Override
-    public Product getProduct(Long id) throws ProductNotFoundException { // или Optional, или NoSuchElementException, или свой Checked-exception
+    public Product getProduct(Long id) throws ProductNotFoundException {
         validateProductIdNull(id);
 
         this.lock.readLock().lock();
         try{
             Product product = products.get(id);
             if (product == null) {
-                throw getProdcutFoundExceptionWithProductId(id);
+                throw getProductNotFoundExceptionWithProductId(id);
             }
             return product;
         }finally {
@@ -54,7 +61,7 @@ public class HashMapProductDao implements ProductDao {
             throw new ProductNotFoundException(ProductNotFoundException.ID_IS_NULL);
     }
 
-    private ProductNotFoundException getProdcutFoundExceptionWithProductId(Long id) {
+    private ProductNotFoundException getProductNotFoundExceptionWithProductId(Long id) {
         return new ProductNotFoundException(String.format(ProductNotFoundException.ID_NOT_FOUND, id));
     }
 
@@ -73,34 +80,42 @@ public class HashMapProductDao implements ProductDao {
     }
 
     private List<Product> findProductsInternal(String query, SortField sortField, SortOrder sortOrder) {
-        if (isQueryEmpty(query))
-            return handleEmptyQuery(sortField, sortOrder);
+        List<Product> filteredProducts = getFilteredProducts(query);  // Получаем отфильтрованные продукты
+
+        Comparator<Product> comparator = null;
+
+        if (sortField != null && sortOrder != null) {
+            comparator = createFieldComparator(sortField, sortOrder);
+        } else if (!filteredProducts.isEmpty() && !isQueryEmpty(query)) {
+            List<String> searchTerms = extractSearchTerms(query);
+            comparator = createMatchRankComparatorForTerms(searchTerms);
+        }
+
+        if (comparator != null) {
+            return filteredProducts.stream().sorted(comparator).collect(Collectors.toList());
+        } else {
+            return new ArrayList<>(filteredProducts);
+        }
+    }
+
+    private List<Product> getFilteredProducts(String query) {
+        if (isQueryEmpty(query)) {
+            return createFilteredProductsStream().collect(Collectors.toList());
+        }
 
         List<String> searchTerms = extractSearchTerms(query);
 
-        Stream<Product> productStream = createFilteredProductsStream()
-                .filter(p -> getMatchRank(p, searchTerms) > 0); // Оставляем только совпадающие товары
-
-        Comparator<Product> comparator = createComparator(query, sortField, sortOrder);
-
-        return productStream.sorted(comparator).collect(Collectors.toList());
+        return createFilteredProductsStream()
+                .filter(p -> getMatchRank(p, searchTerms) > 0)
+                .collect(Collectors.toList());
     }
 
     private boolean isQueryEmpty(String query) {
         return StringUtils.isEmpty(query);
     }
-    private List<Product> handleEmptyQuery(SortField sortField, SortOrder sortOrder) {
-        Stream<Product> productStream = createFilteredProductsStream();
-        Comparator<Product> comparator = createFieldComparator(sortField, sortOrder);
-        if (comparator != null) {
-            return productStream.sorted(comparator).collect(Collectors.toList());
-        } else {
-            return productStream.collect(Collectors.toList());
-        }
-    }
 
     private List<String> extractSearchTerms(String fullQuery) {
-        if (isQueryEmpty(fullQuery)) // зачем проверять, если проверили выше? с расчётом на "а мало ли в Другом месте"?
+        if (isQueryEmpty(fullQuery))
             return Collections.emptyList();
 
         return Arrays.stream(fullQuery.toLowerCase().trim().split("\\s+"))
@@ -114,16 +129,18 @@ public class HashMapProductDao implements ProductDao {
                 .filter(this::isProductPriceNonNull)
                 .filter(this::isProductInStock);
     }
+
     private boolean isProductInStock(Product product) {
         return product.getStock() > 0;
     }
+
     private boolean isProductPriceNonNull(Product product) {
         return product.getPrice() != null;
     }
 
     private int getMatchRank(Product product, List<String> searchTerms) {
         if (searchTerms.isEmpty()) {
-            return 1;
+            return 0; // Без поиска ранг 0
         }
 
         String description = StringUtils.defaultString(product.getDescription().toLowerCase());
@@ -140,28 +157,19 @@ public class HashMapProductDao implements ProductDao {
         }
     }
 
-    private Comparator<Product> createComparator(String query, SortField sortField, SortOrder sortOrder) {
-        List<String> searchTerms = extractSearchTerms(query);
 
-        Comparator<Product> matchRankComparator = createMatchRankComparatorForTerms(searchTerms);
-        Comparator<Product> fieldComparator = createFieldComparator(sortField, sortOrder);
-
-        return combineComparators(matchRankComparator, fieldComparator);
-    }
 
     private Comparator<Product> createMatchRankComparatorForTerms(List<String> searchTerms) {
         return Comparator
                 .comparingInt((Product p) -> getMatchRank(p, searchTerms))
                 .reversed();
     }
+
     private Comparator<Product> createFieldComparator(SortField sortField, SortOrder sortOrder) {
         if (sortField == null) {
             return null;
         }
         Comparator<Product> comparator = null;
-        /*
-        пока он достаточно мал, поэтому не целесообразно использовать паттерн проектирования Strategy с методом getComparator
-         */
         switch (sortField) {
             case PRICE:
                 comparator = Comparator.comparing(Product::getPrice, Comparator.nullsLast(Comparator.naturalOrder()));
@@ -176,19 +184,9 @@ public class HashMapProductDao implements ProductDao {
         return comparator;
     }
 
-    private Comparator<Product> combineComparators(Comparator<Product> matchScoreComparator, Comparator<Product> fieldComparator) {
-        if (fieldComparator != null) {
-            return matchScoreComparator.thenComparing(fieldComparator);
-        } else {
-            return matchScoreComparator;
-        }
-    }
-
     private boolean containsWord(String description, String word) {
         return Arrays.asList(description.split("\\s+")).stream().anyMatch(descWord -> descWord.contains(word));
     }
-
-
 
     @Override
     public void save(Product product) throws ProductNotFoundException {
@@ -210,6 +208,7 @@ public class HashMapProductDao implements ProductDao {
             this.lock.writeLock().unlock();
         }
     }
+
     private void validateProductNull(Product product) throws ProductNotFoundException{
         if (product == null) {
             throw new ProductNotFoundException(ProductNotFoundException.SAVE_NULL_PRODUCT);
@@ -219,13 +218,14 @@ public class HashMapProductDao implements ProductDao {
     private boolean isProductIdNull(Long id) {
         return id == null;
     }
-    private void saveProductAsInexisted(Product product) { // нужно ли его защищать от потоков, если он только безопасно вызывается?
+
+    private void saveProductAsInexisted(Product product) {
         product.setId(++this.maxId);
         products.put(product.getId(),product);
     }
 
     @Override
-    public void delete(Long id) { // наверное пусть Mockito грузит данные, а JUnit удаляет
+    public void delete(Long id) {
         this.lock.writeLock().lock();
         try {
             products.remove(id);

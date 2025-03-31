@@ -1,4 +1,4 @@
-package com.es.phoneshop.model.product.ArrayListProductDaoTests;
+package com.es.phoneshop.model.product.ProductDaoTests;
 
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;

@@ -6,7 +6,8 @@ import org.junit.platform.suite.api.Suite;
 @Suite
 @SelectClasses({
         com.es.phoneshop.web.SuiteOfTests.class,
-        com.es.phoneshop.model.product.ArrayListProductDaoTests.SuiteOfTests.class
+        com.es.phoneshop.model.product.ProductDaoTests.SuiteOfTests.class,
+        com.es.phoneshop.model.product.services.SuiteOfTests.class
 })
 public class AllTestsSuite {
 }

@@ -1,10 +1,12 @@
-package com.es.phoneshop.web;
+package com.es.phoneshop.web.listeners;
 
-import com.es.phoneshop.model.product.*;
+import com.es.phoneshop.model.product.Product;
+import com.es.phoneshop.model.product.ProductDao;
+import com.es.phoneshop.model.product.ProductHistory;
 import com.es.phoneshop.model.product.exceptions.InsertDemoDataException;
 import com.es.phoneshop.model.product.exceptions.ProductNotFoundException;
 import jakarta.servlet.ServletContextEvent;
-import jakarta.servlet.ServletContextListener;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,22 +14,23 @@ import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
 
-public class ProductDemoDataServletContextListener implements ServletContextListener {
+public class DemoDataInitializer {
     public static final String CURRENCY = "USD";
     public static final String INSERT_DEMO_DATA = "insertDemoData";
     private static final String UNKNOWN_EXCEPTION_MESSAGE = "Unknown Exception %s";
-
+    
+    
     private ProductDao productDao;
-    public ProductDemoDataServletContextListener() {
-        this.productDao = HashMapProductDao.getInstance();
+    
+    public DemoDataInitializer(ProductDao productDao) {
+        this.productDao = productDao;
     }
-
-    @Override
-    public void contextInitialized(ServletContextEvent event) {
+    
+    public void initialize(ServletContextEvent event) {
         try {
             boolean insertDemoData = Boolean.valueOf(event.getServletContext().getInitParameter(INSERT_DEMO_DATA));
             if (insertDemoData)
-                this.getSampleProducts().stream().forEach(product -> saveProductToProductDao(product));
+                getSampleProducts().stream().forEach(product -> saveProductToProductDao(product));
         } catch (NullPointerException | IllegalArgumentException | ProductNotFoundException e) {
             throw new InsertDemoDataException(e.getMessage());
         } catch (Exception e) {
@@ -43,18 +46,15 @@ public class ProductDemoDataServletContextListener implements ServletContextList
         }
     }
 
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {}
-
-    public List<Product> getSampleProducts(){
+    private static List<Product> getSampleProducts(){
         List<Product> result = new ArrayList<>();
         Currency usd = Currency.getInstance(CURRENCY);
         List<ProductHistory> productHistories = Arrays.asList(
-                new ProductHistory(usd, LocalDate.now(), new BigDecimal(100)), 
+                new ProductHistory(usd, LocalDate.now(), new BigDecimal(100)),
                 new ProductHistory(usd, LocalDate.now().minusDays(1), new BigDecimal(200)),
                 new ProductHistory(usd, LocalDate.now().minusDays(2), new BigDecimal(150))
         );
-        result.add(new Product( "sgs", "Samsung Galaxy S", new BigDecimal(100), usd, 100, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S.jpg", productHistories));
+        result.add(new Product( "sgs", "Samsung Galaxy S", new BigDecimal(1000), usd, 100, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S.jpg", productHistories));
         result.add(new Product( "sgs2", "Samsung Galaxy S II", new BigDecimal(201), usd, 1, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S%20II.jpg", productHistories));
         result.add(new Product( "sgs3", "Samsung Galaxy S III", new BigDecimal(300), usd, 5, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S%20III.jpg", productHistories));
         result.add(new Product( "sgs4", "Samsung Galaxy S IV", new BigDecimal(202), usd, 1, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Samsung/Samsung%20Galaxy%20S%20II.jpg", productHistories));
