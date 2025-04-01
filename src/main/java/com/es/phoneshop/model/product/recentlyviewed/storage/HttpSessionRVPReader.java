@@ -16,7 +16,7 @@ public class HttpSessionRVPReader {
     public static RecentlyViewedProducts getRecentlyViewProductsFromSession(HttpSession session, RecentlyViewedProductsService service) {
         synchronized (session) {
             List<Product> products = (List<Product>) session.getAttribute(RECENTLY_VIEWED_SESSION_ATTRIBUTE);
-            if (products == null || products.isEmpty()) {
+            if (products == null) {
                 return service.createRecentlyViewedProducts(Collections.emptyList());
             } else {
                 return service.createRecentlyViewedProducts(products);

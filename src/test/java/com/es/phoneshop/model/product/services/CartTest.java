@@ -2,17 +2,23 @@ package com.es.phoneshop.model.product.services;
 
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.cart.CartItem;
+import com.es.phoneshop.model.cart.OutOfStockException;
 import com.es.phoneshop.model.product.Product;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class CartTest {
+    private static final Logger log = LoggerFactory.getLogger(CartTest.class);
     private static Product product1;
     private static Product product2;
 
@@ -115,5 +121,46 @@ public class CartTest {
         product.setDescription(description);
         product.setPrice(price);
         return product;
+    }
+
+    @Test
+    void delete_whichExist()  {
+        assertEquals(cart.getItems().size(), 0);
+        cart.add(new CartItem(product1, QUANTITY_1));
+        assertEquals(cart.getItems().size(), 1);
+
+        cart.delete(product1.getId());
+        assertEquals(cart.getItems().size(), 0);
+    }
+
+    @Test
+    void delete_whichNotExist() {
+        assertEquals(cart.getItems().size(), 0);
+        cart.add(new CartItem(product1, QUANTITY_1));
+        assertEquals(cart.getItems().size(), 1);
+
+        cart.delete(product2.getId());
+        assertEquals(cart.getItems().size(), 1);
+        assertEquals(cart.getItems().get(0).getProduct(), product1);
+    }
+
+    @Test
+    void update_whichNotExist() {
+        assertEquals(cart.getItems().size(), 0);
+        cart.update(new CartItem(product1, QUANTITY_1));
+        assertEquals(cart.getItems().size(), 1);
+        assertEquals(cart.getItems().get(0).getProduct(), product1);
+        assertEquals(cart.getItems().get(0).getQuantity(), QUANTITY_1);
+    }
+
+    @Test
+    void update_whichExist()  {
+        assertEquals(cart.getItems().size(), 0);
+        cart.update(new CartItem(product1, QUANTITY_1));
+        assertEquals(cart.getItems().size(), 1);
+        assertEquals(cart.getItems().get(0).getQuantity(), QUANTITY_1);
+
+        cart.update(new CartItem(product1, QUANTITY_2));
+        assertEquals(cart.getItems().get(0).getQuantity(), QUANTITY_2);
     }
 }

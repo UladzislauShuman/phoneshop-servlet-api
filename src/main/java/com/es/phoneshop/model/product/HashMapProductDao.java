@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class HashMapProductDao implements ProductDao {
-
     private static volatile ProductDao instance;
+
     public static ProductDao getInstance() {
         if (instance != null) {
             return instance;
@@ -33,7 +33,7 @@ public class HashMapProductDao implements ProductDao {
     }
 
     private Long maxId = 0L;
-    private final Map<Long,Product> products;
+    private final Map<Long, Product> products;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private HashMapProductDao() {
@@ -45,13 +45,13 @@ public class HashMapProductDao implements ProductDao {
         validateProductIdNull(id);
 
         this.lock.readLock().lock();
-        try{
+        try {
             Product product = products.get(id);
             if (product == null) {
                 throw getProductNotFoundExceptionWithProductId(id);
             }
             return product;
-        }finally {
+        } finally {
             this.lock.readLock().unlock();
         }
     }
@@ -80,7 +80,7 @@ public class HashMapProductDao implements ProductDao {
     }
 
     private List<Product> findProductsInternal(String query, SortField sortField, SortOrder sortOrder) {
-        List<Product> filteredProducts = getFilteredProducts(query);  // Получаем отфильтрованные продукты
+        List<Product> filteredProducts = getFilteredProducts(query);
 
         Comparator<Product> comparator = null;
 
@@ -124,7 +124,7 @@ public class HashMapProductDao implements ProductDao {
     }
 
     private Stream<Product> createFilteredProductsStream() {
-        return  this.products.values().stream()
+        return this.products.values().stream()
                 .filter(Objects::nonNull)
                 .filter(this::isProductPriceNonNull)
                 .filter(this::isProductInStock);
@@ -140,7 +140,7 @@ public class HashMapProductDao implements ProductDao {
 
     private int getMatchRank(Product product, List<String> searchTerms) {
         if (searchTerms.isEmpty()) {
-            return 0; // Без поиска ранг 0
+            return 0;
         }
 
         String description = StringUtils.defaultString(product.getDescription().toLowerCase());
@@ -156,7 +156,6 @@ public class HashMapProductDao implements ProductDao {
             return 0;
         }
     }
-
 
 
     private Comparator<Product> createMatchRankComparatorForTerms(List<String> searchTerms) {
@@ -209,7 +208,7 @@ public class HashMapProductDao implements ProductDao {
         }
     }
 
-    private void validateProductNull(Product product) throws ProductNotFoundException{
+    private void validateProductNull(Product product) throws ProductNotFoundException {
         if (product == null) {
             throw new ProductNotFoundException(ProductNotFoundException.SAVE_NULL_PRODUCT);
         }
@@ -221,7 +220,7 @@ public class HashMapProductDao implements ProductDao {
 
     private void saveProductAsInexisted(Product product) {
         product.setId(++this.maxId);
-        products.put(product.getId(),product);
+        products.put(product.getId(), product);
     }
 
     @Override
@@ -240,8 +239,7 @@ public class HashMapProductDao implements ProductDao {
         try {
             this.products.clear();
             maxId = 0L;
-        }
-        finally {
+        } finally {
             this.lock.writeLock().unlock();
         }
     }

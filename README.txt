@@ -131,14 +131,45 @@ Homework3
     ```
     + избавиться от Cart getCart(HttpServletRequest request);
     ```
-Тестирование
-    + Cart
-    + DefaultCartService
-    + HashMapProductDao
-    + DefaultRecentlyViewedProductsService
-    + LinkedListRecentlyViewedProducts
-    + HttpSessionRecentlyViewedProductsStorage
-    + HttpSessionCartStorage
-    + DemoDataInitializer
-    + PLPServlet
-    + PDPServlet
+
+Лекция 4. 25.03.2025 -- 01.04.2025
+notes/lecture4/notes.txt
+
+Теория
+Практика
+
+Task 4.1: show cart
++ Implement CartPageServlet.doGet() and cart.jsp to show empty cart page.
++ Bind the servlet to /cart URL.
++ Make Cart class Serializable to facilitate server restart.
+
+Task 4.2: Cart update
++ Implement cart update via CartPageServlet.doPost().
++ The whole cart shall be updated via single button.
+
+Task 4.3: Delete cart item
++ Implement CartItemDeleteServlet.
++ Bind it to POST:/cart/deleteCartItem
+    Possible options:
+        DELETE: /cart/<productId>
+        => POST: /cart/deleteCartItem/<productId>
+        POST: /cart/deleteCartItem?productId=<productId>
+
+Task 4.4: MiniCart
++ Display minicart on PLP and PDP.
++ Think about technical approach: filter or include another servlet.
++ Implement MiniCartServlet.doGet().
+    Bind it to GET:/cart/minicart
+
+Task 4.5: [selfcheck] Implement PLP add to cart
++ Implement add to cart from search result page.
+
+
+Homework4
++ общее количество и стоимось в cart.jsp
+
+подразумевается, но не упоминается
+    с прошлого раза:
+        + тестирование Servlet-ов
+        + тестирование Reader-ов
+        + перезагрузка при переходе обратно

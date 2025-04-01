@@ -1,0 +1,58 @@
+    взглянем на эти два метода
+
+    public void add(CartItem cartItem) {
+        if (cartItem != null) {
+            Long productId = cartItem.getProduct().getId();
+            CartItem item = items.get(productId);
+            if (item == null) {
+                items.put(productId, cartItem);
+            } else {
+                item.setQuantity(
+                        item.getQuantity() + cartItem.getQuantity()
+                );
+            }
+        }
+    }
+
+    public void update(CartItem cartItem) {
+        if (cartItem != null) {
+            Long productId = cartItem.getProduct().getId();
+            CartItem item = items.get(productId);
+
+            if (item == null)
+                items.put(productId, cartItem);
+            else
+                item.setQuantity(
+                        cartItem == null ? item.getQuantity() : cartItem.getQuantity()
+                );
+        }
+    }
+
+    нетрудно видеть, что -- тут есть отличие буквально в МЕТОДЕ вычисления
+
+    item.getQuantity() + cartItem.getQuantity()
+    cartItem == null ? item.getQuantity() : cartItem.getQuantity()
+
+    и в Java есть java.util.function
+
+    нужно ли нам возвращать значение(BiFunction), или нет(BiConsumer)?
+    нет, ибо
+    item.setQuantity(
+        cartItem == null ? item.getQuantity() : cartItem.getQuantity()
+    );
+    item.setQuantity(
+        item.getQuantity() + cartItem.getQuantity()
+    );
+
+    итого в else у нас должно просто вызываться void функция
+    (existingItem, newItem) ->
+                    existingItem.setQuantity(existingItem.getQuantity() + newItem.getQuantity())
+    (existingItem, newItem) ->
+                    existingItem.setQuantity(newItem.getQuantity())
+
+    вот и они
+
+
+    НО -- попробовав для DefaultCartService я решил, что -- текста стало даже больше
+    он страшнее
+    поэтому я решил остановиться на boolean флаге
