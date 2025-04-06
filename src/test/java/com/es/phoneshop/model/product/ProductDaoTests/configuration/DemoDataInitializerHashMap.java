@@ -1,8 +1,9 @@
 
 package com.es.phoneshop.model.product.ProductDaoTests.configuration;
 
+import com.es.phoneshop.model.dao.HashMapProductDao;
 import com.es.phoneshop.model.product.*;
-import com.es.phoneshop.model.product.exceptions.ProductNotFoundException;
+import com.es.phoneshop.model.exceptions.ProductNotFoundException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

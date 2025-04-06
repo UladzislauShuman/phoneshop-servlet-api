@@ -6,6 +6,9 @@ import org.junit.platform.suite.api.Suite;
 @Suite
 @SelectClasses({
         HttpSessionCartReaderTest.class,
-        HttpSessionRVPReaderTest.class
+        HttpSessionRVPReaderTest.class,
+        DeepClonerToHashMapTest.class,
+        PhoneValidatorTest.class,
+        LoggerHelperTest.class
 })
 public class SuiteOfTests {}

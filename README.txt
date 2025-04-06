@@ -173,3 +173,43 @@ Homework4
         + тестирование Servlet-ов
         + тестирование Reader-ов
         + перезагрузка при переходе обратно
+
+
+Лекция 5. 02.04.2025 -- 09.04.2025
+
+Task 5.1: Checkout page
++ Implement CheckoutPageServlet.
+    Bind the servlet to /checkout URL
++ The page should provide an information table without editing capabilities:
+    + cart overview
+    + cart subtotal
+    + delivery costs (hardcoded)
+    + cart total (cart subtotal + delivery costs)
++ Should be possible to enter:
+        + Contact details (First name, Last name, phone)
+        + Delivery date
+        + Delivery address
+        + Payment method selectbox: cash, credit card
+        + Place order button
+- Implement OrderDao, OrderService.placeOrder().
+
+Task 5.2: OrderOverview (OrderComfirmation) page
++ Implement OrderOverviewPageServlet.
+    URL: /order/overview/*
++ Implement secure orderId generation.
+
+Task 5.3: primitive DOS protection
++ Implement DosFilter which blocks an IP if amount of requests from it
+    + per minute exceeds 20.
+
+Task 5.4: Deploy to standalone tomcat
++ Build war using “mvn package” goal.
++ Download tomcat zip from from http://tomcat.apache.org/
++ Deploy the war to the tomcat on local environment.
++ Make the application available by url: http://servlet-api-ecommerce.com/
+    Implementation hints:
+        Use hosts file to map servlet-api-ecommerce domain to localhost
+        The application must be available under / context path.T
+
+Homework
+- Prepare for online test / coding task

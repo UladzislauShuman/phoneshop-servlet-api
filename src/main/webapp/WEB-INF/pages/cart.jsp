@@ -5,11 +5,19 @@
 
 <jsp:useBean id="cart" type="com.es.phoneshop.model.cart.Cart" scope="request"/>
 <tags:master pageTitle="Cart">
-  <p>
-      Cart: ${cart}, Total quantity : ${cart.totalQuantity}
-  </p>
+    <c:if test="${not empty param.error_empty_cart}">
+        <div class="error">
+            ${param.error_empty_cart}
+        </div>
+      </c:if>
 
-  <c:if test="${not empty param.message}">
+    <c:if test="${not empty param.error}">
+        <div class="error">
+            ${param.error}
+        </div>
+      </c:if>
+
+    <c:if test="${not empty param.message}">
       <div class="success">
           ${param.message}
       </div>
@@ -89,6 +97,9 @@
       <p>
         <button>Update</button>
       </p>
+  </form>
+  <form action="${pageContext.servletContext.contextPath}/checkout" method="GET">
+    <button>Checkout</button>
   </form>
   <form id="deleteCartItem" method="post"></form>
 </tags:master>

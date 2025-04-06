@@ -3,7 +3,7 @@ package com.es.phoneshop.model.product.services;
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.cart.CartItem;
 import com.es.phoneshop.model.cart.DefaultCartService;
-import com.es.phoneshop.model.cart.OutOfStockException;
+import com.es.phoneshop.model.exceptions.OutOfStockException;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
 import org.junit.jupiter.api.BeforeEach;

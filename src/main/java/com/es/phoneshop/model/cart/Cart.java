@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class Cart implements Serializable {
@@ -23,8 +24,10 @@ public class Cart implements Serializable {
         return items.values().stream().toList();
     }
 
-    public void setItems(HashMap<Long, CartItem> items) {
-        this.items = items;
+    public Map<Long, CartItem> getItemsMap() {return items;}
+
+    public void setItems(Map<Long, CartItem> items) {
+        this.items = new HashMap<>(items);
     }
 
     public void add(CartItem cartItem) {
@@ -78,6 +81,10 @@ public class Cart implements Serializable {
 
     public void setTotalCost(BigDecimal totalCost) {
         this.totalCost = totalCost;
+    }
+
+    public  boolean isEmpty() {
+        return this.items.isEmpty();
     }
 
     @Override

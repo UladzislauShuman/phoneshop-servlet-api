@@ -2,8 +2,8 @@ package com.es.phoneshop.web;
 
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.cart.CartService;
-import com.es.phoneshop.model.cart.OutOfStockException;
-import com.es.phoneshop.model.cart.storage.HttpSessionCartReader;
+import com.es.phoneshop.model.exceptions.OutOfStockException;
+import com.es.phoneshop.utils.HttpSessionCartReader;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.utils.RedirectPathFormater;
 import jakarta.servlet.ServletException;
@@ -23,7 +23,10 @@ import java.util.Locale;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class AddCartItemServletTest {

@@ -2,15 +2,14 @@ package com.es.phoneshop.model.product.services;
 
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
-import com.es.phoneshop.model.product.recentlyviewed.DefaultRecentlyViewedProductsService;
-import com.es.phoneshop.model.product.recentlyviewed.LinkedListRecentlyViewedProducts;
-import com.es.phoneshop.model.product.recentlyviewed.RecentlyViewedProducts;
+import com.es.phoneshop.model.recentlyviewed.DefaultRecentlyViewedProductsService;
+import com.es.phoneshop.model.recentlyviewed.LinkedListRecentlyViewedProducts;
+import com.es.phoneshop.model.recentlyviewed.RecentlyViewedProducts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;

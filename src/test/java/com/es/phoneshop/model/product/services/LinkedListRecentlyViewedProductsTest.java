@@ -1,7 +1,7 @@
 package com.es.phoneshop.model.product.services;
 
 import com.es.phoneshop.model.product.Product;
-import com.es.phoneshop.model.product.recentlyviewed.LinkedListRecentlyViewedProducts;
+import com.es.phoneshop.model.recentlyviewed.LinkedListRecentlyViewedProducts;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

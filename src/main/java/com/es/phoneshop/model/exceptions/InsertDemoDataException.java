@@ -1,4 +1,4 @@
-package com.es.phoneshop.model.product.exceptions;
+package com.es.phoneshop.model.exceptions;
 
 public class InsertDemoDataException extends RuntimeException {
     private static final String INITIALIZATION_PROBLEM_MESSAGE = "Problem with DemoDate initialization: %s";

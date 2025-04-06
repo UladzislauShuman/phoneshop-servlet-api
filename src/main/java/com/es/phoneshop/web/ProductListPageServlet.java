@@ -2,8 +2,9 @@ package com.es.phoneshop.web;
 
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
-import com.es.phoneshop.model.product.recentlyviewed.RecentlyViewedProductsService;
-import com.es.phoneshop.model.product.recentlyviewed.storage.HttpSessionRVPReader;
+import com.es.phoneshop.model.recentlyviewed.RecentlyViewedProductsService;
+import com.es.phoneshop.utils.HttpSessionRVPReader;
+import com.es.phoneshop.utils.LoggerHelper;
 import com.es.phoneshop.web.listeners.DependenciesServletContextListener;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
@@ -11,12 +12,16 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 public class ProductListPageServlet extends HttpServlet {
+    private static final Logger logger = LoggerFactory.getLogger(ProductListPageServlet.class);
+
     public static final String PRODUCT_LIST_JSP_PATH = "/WEB-INF/pages/productList.jsp";
     public static final String EXCEPTIONS = "ServletException | IOException: %s";
     public static final String ATTRIBUTE_PRODUCTS = "products";
@@ -34,28 +39,35 @@ public class ProductListPageServlet extends HttpServlet {
 
     @Override
     public void init(ServletConfig config) throws ServletException {
+        LoggerHelper.logInit(logger,LoggerHelper.BEGIN);
         super.init(config);
         ServletContext context = getServletContext();
         productDao = (ProductDao) context.getAttribute(DependenciesServletContextListener.ATTRIBUTE_PRODUCT_DAO);
         recentlyViewedProductsService = (RecentlyViewedProductsService) context.getAttribute(DependenciesServletContextListener.ATTRIBUTE_RECENTLY_VIEWED_PRODUCTS_SERVICE);
         throwIfNullAttributes();
+        LoggerHelper.logInit(logger, LoggerHelper.SUCCESS);
     }
 
     private void throwIfNullAttributes() throws ServletException {
         if (productDao == null) {
+            LoggerHelper.logInit(logger, SERVLET_EXCEPTION_PRODUCT_DAO_NULL);
             throw new ServletException(SERVLET_EXCEPTION_PRODUCT_DAO_NULL);
         }
         if (recentlyViewedProductsService == null) {
+            LoggerHelper.logInit(logger, SERVLET_EXCEPTION_RVM_SERVICE_NULL);
             throw new ServletException(SERVLET_EXCEPTION_RVM_SERVICE_NULL);
         }
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        LoggerHelper.logDoGet(logger, LoggerHelper.BEGIN);
         try {
             setAttributesToRequest(request);
             request.getRequestDispatcher(PRODUCT_LIST_JSP_PATH).forward(request, response);
+            LoggerHelper.logDoGet(logger, LoggerHelper.SUCCESS);
         } catch (Exception e) {
+            LoggerHelper.logDoGet(logger, e);
             handleDoGetExceptions(e, request, response);
         }
     }

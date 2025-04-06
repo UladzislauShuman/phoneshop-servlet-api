@@ -1,4 +1,4 @@
-package com.es.phoneshop.model.product.recentlyviewed;
+package com.es.phoneshop.model.recentlyviewed;
 
 /*
 мне важно, чтобы

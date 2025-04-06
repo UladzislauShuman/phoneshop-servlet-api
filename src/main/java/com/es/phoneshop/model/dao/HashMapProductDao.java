@@ -1,23 +1,26 @@
+package com.es.phoneshop.model.dao;
 
-package com.es.phoneshop.model.product;
-
-import com.es.phoneshop.model.product.exceptions.ProductNotFoundException;
+import com.es.phoneshop.model.enums.SortField;
+import com.es.phoneshop.model.enums.SortOrder;
+import com.es.phoneshop.model.exceptions.ProductNotFoundException;
+import com.es.phoneshop.model.product.Product;
+import com.es.phoneshop.model.product.ProductDao;
 import org.apache.maven.shared.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class HashMapProductDao implements ProductDao {
+public class HashMapProductDao extends HashMapItemDao<Product, Long, ProductNotFoundException> implements ProductDao {
+
+    public static final String MESSAGE_PRODUCT_WITH_ID_NOT_FOUND = "Product with id %d not found";
+    public static final String MESSAGE_PRODUCT_ID_CANNOT_NULL = "Product ID cannot be null.";
+    public static final String MESSAGE_CANNOT_SAVE_NULL_PRODUCT = "Cannot save a null product.";
     private static volatile ProductDao instance;
 
     public static ProductDao getInstance() {
@@ -32,37 +35,38 @@ public class HashMapProductDao implements ProductDao {
         }
     }
 
-    private Long maxId = 0L;
-    private final Map<Long, Product> products;
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
-
     private HashMapProductDao() {
-        this.products = new HashMap<>();
+        super();
+    }
+
+    @Override
+    protected Long generateId(Product product) {
+        return product.getId();
+    }
+
+    @Override
+    protected void setItemId(Product product, Long id) {
+        product.setId(id);
+    }
+
+    @Override
+    protected ProductNotFoundException getNotFoundException(Long id) {
+        return new ProductNotFoundException(String.format(MESSAGE_PRODUCT_WITH_ID_NOT_FOUND, id));
+    }
+
+    @Override
+    protected String getIdIsNullMessage() {
+        return MESSAGE_PRODUCT_ID_CANNOT_NULL;
+    }
+
+    @Override
+    protected String getSaveNullItemMessage() {
+        return MESSAGE_CANNOT_SAVE_NULL_PRODUCT;
     }
 
     @Override
     public Product getProduct(Long id) throws ProductNotFoundException {
-        validateProductIdNull(id);
-
-        this.lock.readLock().lock();
-        try {
-            Product product = products.get(id);
-            if (product == null) {
-                throw getProductNotFoundExceptionWithProductId(id);
-            }
-            return product;
-        } finally {
-            this.lock.readLock().unlock();
-        }
-    }
-
-    private void validateProductIdNull(Long id) throws ProductNotFoundException {
-        if (id == null)
-            throw new ProductNotFoundException(ProductNotFoundException.ID_IS_NULL);
-    }
-
-    private ProductNotFoundException getProductNotFoundExceptionWithProductId(Long id) {
-        return new ProductNotFoundException(String.format(ProductNotFoundException.ID_NOT_FOUND, id));
+        return getItem(id);
     }
 
     @Override
@@ -124,7 +128,7 @@ public class HashMapProductDao implements ProductDao {
     }
 
     private Stream<Product> createFilteredProductsStream() {
-        return this.products.values().stream()
+        return this.items.values().stream()
                 .filter(Objects::nonNull)
                 .filter(this::isProductPriceNonNull)
                 .filter(this::isProductInStock);
@@ -188,64 +192,16 @@ public class HashMapProductDao implements ProductDao {
     }
 
     @Override
-    public void save(Product product) throws ProductNotFoundException {
-        validateProductNull(product);
-        this.lock.writeLock().lock();
-        try {
-            Long id = product.getId();
-            if (isProductIdNull(id)) {
-                saveProductAsInexisted(product);
-            } else {
-                if (products.containsKey(id)) {
-                    products.put(id, product);
-                } else {
-                    saveProductAsInexisted(product);
-                }
-            }
-
-        } finally {
-            this.lock.writeLock().unlock();
-        }
-    }
-
-    private void validateProductNull(Product product) throws ProductNotFoundException {
-        if (product == null) {
-            throw new ProductNotFoundException(ProductNotFoundException.SAVE_NULL_PRODUCT);
-        }
-    }
-
-    private boolean isProductIdNull(Long id) {
-        return id == null;
-    }
-
-    private void saveProductAsInexisted(Product product) {
-        product.setId(++this.maxId);
-        products.put(product.getId(), product);
-    }
-
-    @Override
-    public void delete(Long id) {
-        this.lock.writeLock().lock();
-        try {
-            products.remove(id);
-        } finally {
-            this.lock.writeLock().unlock();
+    protected void validateIdNull(Long id) throws ProductNotFoundException {
+        if (id == null) {
+            throw new ProductNotFoundException(getIdIsNullMessage());
         }
     }
 
     @Override
-    public void clear() {
-        this.lock.writeLock().lock();
-        try {
-            this.products.clear();
-            maxId = 0L;
-        } finally {
-            this.lock.writeLock().unlock();
+    protected void validateItemNull(Product item) throws ProductNotFoundException {
+        if (item == null) {
+            throw new ProductNotFoundException(getSaveNullItemMessage());
         }
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return this.products.isEmpty();
     }
 }

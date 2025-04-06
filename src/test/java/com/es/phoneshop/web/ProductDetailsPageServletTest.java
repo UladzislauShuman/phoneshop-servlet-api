@@ -3,13 +3,13 @@ package com.es.phoneshop.web;
 
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.cart.CartService;
-import com.es.phoneshop.model.cart.OutOfStockException;
-import com.es.phoneshop.model.cart.storage.HttpSessionCartReader;
+import com.es.phoneshop.model.exceptions.OutOfStockException;
+import com.es.phoneshop.utils.HttpSessionCartReader;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
-import com.es.phoneshop.model.product.exceptions.ProductNotFoundException;
-import com.es.phoneshop.model.product.recentlyviewed.RecentlyViewedProducts;
-import com.es.phoneshop.model.product.recentlyviewed.RecentlyViewedProductsService;
+import com.es.phoneshop.model.exceptions.ProductNotFoundException;
+import com.es.phoneshop.model.recentlyviewed.RecentlyViewedProducts;
+import com.es.phoneshop.model.recentlyviewed.RecentlyViewedProductsService;
 import com.es.phoneshop.web.config.ErrorPageProperties;
 import com.es.phoneshop.web.listeners.DependenciesServletContextListener;
 import jakarta.servlet.RequestDispatcher;
@@ -31,8 +31,14 @@ import java.math.BigDecimal;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductDetailsPageServletTest {
@@ -45,6 +51,8 @@ public class ProductDetailsPageServletTest {
     private static final Long PRODUCT_ID = 1L;
     private static final int REQUESTED_STOCK = 1;
     private static final int AVAILABLE_STOCK = 5;
+    public static final String EXPECTED_SERVLET_EXCEPTION_MESSAGE = "Expected ServletException to be thrown when ProductDao is null";
+    public static final String TEST = "test";
 
     @Mock
     private ServletConfig config;
@@ -90,7 +98,7 @@ public class ProductDetailsPageServletTest {
 
         ProductDetailsPageServlet servlet = new ProductDetailsPageServlet();
 
-        assertThrows(ServletException.class, () -> servlet.init(config), "Expected ServletException to be thrown when ProductDao is null");
+        assertThrows(ServletException.class, () -> servlet.init(config), EXPECTED_SERVLET_EXCEPTION_MESSAGE);
     }
 
     @Test
@@ -101,7 +109,7 @@ public class ProductDetailsPageServletTest {
 
         ProductDetailsPageServlet servlet = new ProductDetailsPageServlet();
 
-        assertThrows(ServletException.class, () -> servlet.init(config), "test");
+        assertThrows(ServletException.class, () -> servlet.init(config), TEST);
     }
 
     @Test
@@ -113,7 +121,7 @@ public class ProductDetailsPageServletTest {
 
         ProductDetailsPageServlet servlet = new ProductDetailsPageServlet();
 
-        assertThrows(ServletException.class, () -> servlet.init(config), "test");
+        assertThrows(ServletException.class, () -> servlet.init(config), TEST);
     }
 
     @Test
@@ -165,7 +173,7 @@ public class ProductDetailsPageServletTest {
         )).thenReturn(requestDispatcher);
         when(request.getSession()).thenReturn(session);
         when(HttpSessionCartReader.getCartFromSession(session)).thenReturn(cart);
-        doThrow(new ProductNotFoundException("test")).when(cartService).add(any(Cart.class), any(Long.class), anyInt());
+        doThrow(new ProductNotFoundException(TEST)).when(cartService).add(any(Cart.class), any(Long.class), anyInt());
 
         servlet.doPost(request, response);
 

@@ -2,7 +2,6 @@ package com.es.phoneshop.model.product.services;
 
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.cart.CartItem;
-import com.es.phoneshop.model.cart.OutOfStockException;
 import com.es.phoneshop.model.product.Product;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,8 +13,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 public class CartTest {
     private static final Logger log = LoggerFactory.getLogger(CartTest.class);

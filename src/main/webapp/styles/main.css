@@ -52,8 +52,6 @@ body.product-list {
     text-align: right;
   }
 
-
-
   .price:hover .tooltip {
     display: block;
   }

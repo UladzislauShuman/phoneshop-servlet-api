@@ -1,9 +1,9 @@
 package com.es.phoneshop.model.product.utils;
 
 import com.es.phoneshop.model.product.Product;
-import com.es.phoneshop.model.product.recentlyviewed.RecentlyViewedProducts;
-import com.es.phoneshop.model.product.recentlyviewed.RecentlyViewedProductsService;
-import com.es.phoneshop.model.product.recentlyviewed.storage.HttpSessionRVPReader;
+import com.es.phoneshop.model.recentlyviewed.RecentlyViewedProducts;
+import com.es.phoneshop.model.recentlyviewed.RecentlyViewedProductsService;
+import com.es.phoneshop.utils.HttpSessionRVPReader;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

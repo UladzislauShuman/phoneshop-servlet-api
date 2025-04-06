@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.es.phoneshop.model.cart.storage.HttpSessionCartReader;
+import com.es.phoneshop.utils.HttpSessionCartReader;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)

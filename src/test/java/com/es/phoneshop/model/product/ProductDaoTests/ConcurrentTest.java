@@ -3,7 +3,7 @@ package com.es.phoneshop.model.product.ProductDaoTests;
 import com.es.phoneshop.model.product.ProductDaoTests.configuration.DemoDataInitializerHashMap;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
-import com.es.phoneshop.model.product.exceptions.ProductNotFoundException;
+import com.es.phoneshop.model.exceptions.ProductNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
