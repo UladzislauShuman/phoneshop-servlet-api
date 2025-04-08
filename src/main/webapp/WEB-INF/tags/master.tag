@@ -13,9 +13,18 @@
       <img src="${pageContext.servletContext.contextPath}/images/logo.svg"/>
       PhoneShop
     </a>
+    <jsp:include page="/cart/minicart"/>
   </header>
   <main>
     <jsp:doBody/>
   </main>
 </body>
 </html>
+
+<script>
+window.onpageshow = function(event) {
+    if (event.persisted) {
+        location.reload();
+    }
+};
+</script>

@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class ProductListPageServlet extends HttpServlet {
-    public static final String PRODUCTLIST_JSP_PATH = "/WEB-INF/pages/productList.jsp";
+    public static final String PRODUCT_LIST_JSP_PATH = "/WEB-INF/pages/productList.jsp";
     public static final String EXCEPTIONS = "ServletException | IOException: %s";
     public static final String ATTRIBUTE_PRODUCTS = "products";
     public static final String ATTRIBUTE_RECENTLY_PRODUCTS = "recently_products";
@@ -38,10 +38,10 @@ public class ProductListPageServlet extends HttpServlet {
         ServletContext context = getServletContext();
         productDao = (ProductDao) context.getAttribute(DependenciesServletContextListener.ATTRIBUTE_PRODUCT_DAO);
         recentlyViewedProductsService = (RecentlyViewedProductsService) context.getAttribute(DependenciesServletContextListener.ATTRIBUTE_RECENTLY_VIEWED_PRODUCTS_SERVICE);
-        throwIfNullAttributes(productDao, recentlyViewedProductsService);
+        throwIfNullAttributes();
     }
 
-    private void throwIfNullAttributes(ProductDao productDao, RecentlyViewedProductsService recentlyViewedProductsService) throws ServletException {
+    private void throwIfNullAttributes() throws ServletException {
         if (productDao == null) {
             throw new ServletException(SERVLET_EXCEPTION_PRODUCT_DAO_NULL);
         }
@@ -54,8 +54,8 @@ public class ProductListPageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             setAttributesToRequest(request);
-            request.getRequestDispatcher(PRODUCTLIST_JSP_PATH).forward(request, response);
-        }  catch (Exception e) {
+            request.getRequestDispatcher(PRODUCT_LIST_JSP_PATH).forward(request, response);
+        } catch (Exception e) {
             handleDoGetExceptions(e, request, response);
         }
     }
