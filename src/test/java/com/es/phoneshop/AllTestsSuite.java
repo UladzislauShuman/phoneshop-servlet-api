@@ -8,7 +8,8 @@ import org.junit.platform.suite.api.Suite;
         com.es.phoneshop.web.SuiteOfTests.class,
         com.es.phoneshop.model.product.ProductDaoTests.SuiteOfTests.class,
         com.es.phoneshop.model.product.services.SuiteOfTests.class,
-        com.es.phoneshop.model.product.utils.SuiteOfTests.class
+        com.es.phoneshop.model.product.utils.SuiteOfTests.class,
+        com.es.phoneshop.model.product.OrderDaoTests.SuiteOfTests.class
 })
 public class AllTestsSuite {
 }

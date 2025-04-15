@@ -1,9 +1,9 @@
-package com.es.phoneshop.model.product.recentlyviewed.storage;
+package com.es.phoneshop.utils;
 
 import com.es.phoneshop.model.product.Product;
-import com.es.phoneshop.model.product.recentlyviewed.DefaultRecentlyViewedProductsService;
-import com.es.phoneshop.model.product.recentlyviewed.RecentlyViewedProducts;
-import com.es.phoneshop.model.product.recentlyviewed.RecentlyViewedProductsService;
+import com.es.phoneshop.model.recentlyviewed.DefaultRecentlyViewedProductsService;
+import com.es.phoneshop.model.recentlyviewed.RecentlyViewedProducts;
+import com.es.phoneshop.model.recentlyviewed.RecentlyViewedProductsService;
 import jakarta.servlet.http.HttpSession;
 
 import java.util.Collections;

@@ -3,8 +3,8 @@ package com.es.phoneshop.web.listeners;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
 import com.es.phoneshop.model.product.ProductHistory;
-import com.es.phoneshop.model.product.exceptions.InsertDemoDataException;
-import com.es.phoneshop.model.product.exceptions.ProductNotFoundException;
+import com.es.phoneshop.model.exceptions.InsertDemoDataException;
+import com.es.phoneshop.model.exceptions.ProductNotFoundException;
 import jakarta.servlet.ServletContextEvent;
 
 import java.math.BigDecimal;

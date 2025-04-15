@@ -1,4 +1,4 @@
-package com.es.phoneshop.model.cart.storage;
+package com.es.phoneshop.utils;
 
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.cart.DefaultCartService;
@@ -19,5 +19,11 @@ public class HttpSessionCartReader {
 
     public static void saveCartToSession(HttpSession session ,Cart cart) {
         session.setAttribute(CART_SESSION_ATTRIBUTE, cart);
+    }
+
+    public static void cleanCartFromSession(HttpSession session) {
+        synchronized(session) {
+            session.setAttribute(CART_SESSION_ATTRIBUTE, new Cart());
+        }
     }
 }

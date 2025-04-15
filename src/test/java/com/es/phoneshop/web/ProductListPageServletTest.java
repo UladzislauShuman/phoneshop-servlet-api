@@ -2,8 +2,8 @@ package com.es.phoneshop.web;
 
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
-import com.es.phoneshop.model.product.recentlyviewed.RecentlyViewedProducts;
-import com.es.phoneshop.model.product.recentlyviewed.RecentlyViewedProductsService;
+import com.es.phoneshop.model.recentlyviewed.RecentlyViewedProducts;
+import com.es.phoneshop.model.recentlyviewed.RecentlyViewedProductsService;
 import com.es.phoneshop.web.listeners.DependenciesServletContextListener;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
@@ -22,10 +22,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.util.Collections;
 
-import static com.es.phoneshop.web.ProductListPageServlet.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static com.es.phoneshop.web.ProductListPageServlet.ATTRIBUTE_PRODUCTS;
+import static com.es.phoneshop.web.ProductListPageServlet.ATTRIBUTE_RECENTLY_PRODUCTS;
+import static com.es.phoneshop.web.ProductListPageServlet.PRODUCT_LIST_JSP_PATH;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductListPageServletTest {

@@ -2,14 +2,15 @@ package com.es.phoneshop.web;
 
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.cart.CartService;
-import com.es.phoneshop.model.cart.OutOfStockException;
-import com.es.phoneshop.model.cart.storage.HttpSessionCartReader;
+import com.es.phoneshop.model.exceptions.OutOfStockException;
+import com.es.phoneshop.utils.HttpSessionCartReader;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
-import com.es.phoneshop.model.product.exceptions.ProductNotFoundException;
-import com.es.phoneshop.model.product.recentlyviewed.RecentlyViewedProducts;
-import com.es.phoneshop.model.product.recentlyviewed.RecentlyViewedProductsService;
-import com.es.phoneshop.model.product.recentlyviewed.storage.HttpSessionRVPReader;
+import com.es.phoneshop.model.exceptions.ProductNotFoundException;
+import com.es.phoneshop.model.recentlyviewed.RecentlyViewedProducts;
+import com.es.phoneshop.model.recentlyviewed.RecentlyViewedProductsService;
+import com.es.phoneshop.utils.HttpSessionRVPReader;
+import com.es.phoneshop.utils.LoggerHelper;
 import com.es.phoneshop.utils.RedirectPathFormater;
 import com.es.phoneshop.web.config.ErrorPageProperties;
 import com.es.phoneshop.web.listeners.DependenciesServletContextListener;
@@ -19,12 +20,16 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
 public class ProductDetailsPageServlet extends HttpServlet {
+    private static final Logger logger = LoggerFactory.getLogger(ProductDetailsPageServlet.class);
+
     public static final String ATTRIBUTE_PRODUCT = "product";
     public static final String ATTRIBUTE_PRODUCT_CODE = "productCode";
     public static final String ATTRIBUTE_CART = "cart";
@@ -68,23 +73,28 @@ public class ProductDetailsPageServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+        LoggerHelper.logInit(logger, LoggerHelper.BEGIN);
         if (this.productDao == null) {
             ServletContext context = config.getServletContext();
             productDao = (ProductDao) context.getAttribute(DependenciesServletContextListener.ATTRIBUTE_PRODUCT_DAO);
             cartService = (CartService) context.getAttribute(DependenciesServletContextListener.ATTRIBUTE_CART_SERVICE);
             recentlyViewedProductsService = (RecentlyViewedProductsService) context.getAttribute(DependenciesServletContextListener.ATTRIBUTE_RECENTLY_VIEWED_PRODUCTS_SERVICE);
             throwIfNullAttributes();
+            LoggerHelper.logInit(logger, LoggerHelper.SUCCESS);
         }
     }
 
     private void throwIfNullAttributes() throws ServletException {
         if (productDao == null) {
+            LoggerHelper.logInit(logger, SERVLET_EXCEPTION_PRODUCT_DAO_NULL);
             throw new ServletException(SERVLET_EXCEPTION_PRODUCT_DAO_NULL);
         }
         if (cartService == null) {
+            LoggerHelper.logInit(logger, SERVLET_EXCEPTION_CART_SERVICE_NULL);
             throw new ServletException(SERVLET_EXCEPTION_CART_SERVICE_NULL);
         }
         if (recentlyViewedProductsService == null) {
+            LoggerHelper.logInit(logger, SERVLET_EXCEPTION_RVM_SERVICE_NULL);
             throw new ServletException(SERVLET_EXCEPTION_RVM_SERVICE_NULL);
         }
     }
@@ -92,11 +102,14 @@ public class ProductDetailsPageServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
+            LoggerHelper.logDoGet(logger, LoggerHelper.BEGIN);
             Product product = this.productDao.getProduct(parseProductId(request));
             saveProductToRecentlyViewedProducts(request, product);
             setAttributesToRequest(request, product);
             request.getRequestDispatcher(PRODUCT_JSP_PATH).forward(request, response);
+            LoggerHelper.logDoGet(logger, LoggerHelper.SUCCESS);
         } catch (Exception e) {
+            LoggerHelper.logDoGet(logger, e);
             handleDoGetExceptions(e, request, response);
         }
     }
@@ -124,15 +137,19 @@ public class ProductDetailsPageServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        LoggerHelper.logDoPost(logger, LoggerHelper.BEGIN);
         Long productId = -1L;
         try {
             productId = parseProductId(request);
             Integer quantity = parseQuantity(request);
             addToCart(request, productId, quantity);
             response.sendRedirect(RedirectPathFormater.formatSuccessPath(request.getContextPath(), REDIRECT_PRODUCTS_ID_MESSAGE, productId, MESSAGE_PRODUCT_TO_CART));
+            LoggerHelper.logDoPost(logger, LoggerHelper.SUCCESS);
         } catch (ProductNotFoundException | NumberFormatException e) {
+            LoggerHelper.logDoPost(logger, e);
             handleProductNotFoundOrNumberFormatException(e, request, response);
         } catch (Exception e) {
+            LoggerHelper.logDoPost(logger, e);
             handleDoPostParseOrOutOfStockException(e, request, response, productId);
         }
     }

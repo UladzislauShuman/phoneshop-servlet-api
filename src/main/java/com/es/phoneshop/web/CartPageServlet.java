@@ -2,8 +2,9 @@ package com.es.phoneshop.web;
 
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.cart.CartService;
-import com.es.phoneshop.model.cart.OutOfStockException;
-import com.es.phoneshop.model.cart.storage.HttpSessionCartReader;
+import com.es.phoneshop.model.exceptions.OutOfStockException;
+import com.es.phoneshop.utils.HttpSessionCartReader;
+import com.es.phoneshop.utils.LoggerHelper;
 import com.es.phoneshop.utils.RedirectPathFormater;
 import com.es.phoneshop.web.listeners.DependenciesServletContextListener;
 import jakarta.servlet.ServletConfig;
@@ -12,6 +13,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -21,6 +24,8 @@ import java.util.Locale;
 import java.util.Map;
 
 public class CartPageServlet extends HttpServlet {
+    private static final Logger logger = LoggerFactory.getLogger(CartPageServlet.class);
+
     public static final String ATTRIBUTE_CART = "cart";
     public static final String ATTRIBUTE_ERRORS = "errors";
 
@@ -40,6 +45,9 @@ public class CartPageServlet extends HttpServlet {
     public static final String CART_JSP_PATH = "/WEB-INF/pages/cart.jsp";
 
     private static final String SERVLET_EXCEPTION_CART_SERVICE_NULL = "PLP: CartService == null";
+    public static final String NULL_PRODUCT_IDS = "productIds";
+    public static final String MESSAGE_NOTHING_TO_UPDATE = "Nothing to update";
+    public static final String MESSAGE_S = "message = %s";
 
     private CartService cartService;
 
@@ -54,13 +62,16 @@ public class CartPageServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+        LoggerHelper.logInit(logger,LoggerHelper.BEGIN);
         ServletContext context = config.getServletContext();
         cartService = (CartService) context.getAttribute(DependenciesServletContextListener.ATTRIBUTE_CART_SERVICE);
         throwIfNullAttributes();
+        LoggerHelper.logInit(logger, LoggerHelper.SUCCESS);
     }
 
     private void throwIfNullAttributes() throws ServletException {
         if (cartService == null) {
+            LoggerHelper.logInit(logger, SERVLET_EXCEPTION_CART_SERVICE_NULL);
             throw new ServletException(SERVLET_EXCEPTION_CART_SERVICE_NULL);
         }
     }
@@ -68,9 +79,12 @@ public class CartPageServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
+            LoggerHelper.logDoGet(logger, LoggerHelper.BEGIN);
             setAttributesToRequest(request);
             request.getRequestDispatcher(CART_JSP_PATH).forward(request, response);
+            LoggerHelper.logDoGet(logger, LoggerHelper.SUCCESS);
         } catch (Exception e) {
+            LoggerHelper.logDoGet(logger, e);
             handleDoGetExceptions(e, response);
         }
     }
@@ -86,6 +100,7 @@ public class CartPageServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        LoggerHelper.logDoPost(logger, LoggerHelper.BEGIN);
         Map<Long, String> errors = new HashMap<>();
         try {
             String[] productIds = request.getParameterValues(PARAMETER_PRODUCT_ID);
@@ -93,7 +108,9 @@ public class CartPageServlet extends HttpServlet {
 
             updateToCartAndFindErrors(request, productIds, quantities, errors);
             redirectRequest(request, response, errors);
+            LoggerHelper.logDoPost(logger, LoggerHelper.SUCCESS);
         } catch (Exception e) {
+            LoggerHelper.logDoPost(logger, e);
             handleDoPostException(e, request, response);
         }
     }
@@ -109,6 +126,7 @@ public class CartPageServlet extends HttpServlet {
                 quantity = parseQuantity(quantities[i], locale);
                 updateToCart(request, productId, quantity);
             } catch (Exception e) {
+                LoggerHelper.logDoPost(logger, "putToErrors : " + e.getMessage());
                 putToErrors(errors, productId, e);
             }
         }
@@ -141,12 +159,27 @@ public class CartPageServlet extends HttpServlet {
     }
 
     private void handleDoPostException(Exception exception, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String message;
+        if (exception instanceof NullPointerException) {
+            message = handleNullPointerException((NullPointerException) exception);
+        } else {
+            message = String.format(ERROR_UNIDENTIFIED_EXCEPTION, exception.getMessage(), exception.getStackTrace().toString());
+        }
+        LoggerHelper.logDoPost(logger, String.format(MESSAGE_S, message));
         response.sendRedirect(RedirectPathFormater.formatErrorPath(request.getContextPath(), REDIRECT_CART_ERROR,
-                String.format(ERROR_UNIDENTIFIED_EXCEPTION, exception.getMessage(), exception.getStackTrace().toString())));
+                message));
     }
 
     private Integer parseQuantity(String quantity, Locale locale) throws ParseException {
         NumberFormat format = NumberFormat.getInstance(locale);
         return format.parse(quantity).intValue();
+    }
+
+    private String handleNullPointerException(NullPointerException e) {
+        if (e.getMessage().contains(NULL_PRODUCT_IDS)) {
+            return MESSAGE_NOTHING_TO_UPDATE;
+        } else {
+            return e.getMessage();
+        }
     }
 }

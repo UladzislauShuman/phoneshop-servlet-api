@@ -2,10 +2,8 @@ package com.es.phoneshop.model.product.services;
 
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
-import com.es.phoneshop.model.product.exceptions.InsertDemoDataException;
-import com.es.phoneshop.model.product.exceptions.ProductNotFoundException;
+import com.es.phoneshop.model.exceptions.ProductNotFoundException;
 import com.es.phoneshop.web.listeners.DemoDataInitializer;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

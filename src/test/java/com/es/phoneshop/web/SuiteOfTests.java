@@ -10,6 +10,9 @@ import org.junit.platform.suite.api.Suite;
         AddCartItemServletTest.class,
         CartPageServletTest.class,
         DeleteCartItemServletTest.class,
-        MiniCartServletTest.class
+        MiniCartServletTest.class,
+        DosFilterTest.class,
+        CheckoutPageServletTest.class,
+        OrderOverviewPageServletTest.class
 })
 public class SuiteOfTests {}

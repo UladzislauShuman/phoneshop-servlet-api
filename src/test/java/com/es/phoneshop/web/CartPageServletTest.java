@@ -3,10 +3,10 @@ package com.es.phoneshop.web;
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.cart.CartService;
 import com.es.phoneshop.model.cart.DefaultCartService;
-import com.es.phoneshop.model.cart.OutOfStockException;
-import com.es.phoneshop.model.cart.storage.HttpSessionCartReader;
+import com.es.phoneshop.model.exceptions.OutOfStockException;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
+import com.es.phoneshop.utils.HttpSessionCartReader;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Locale;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,13 +74,27 @@ public class CartPageServletTest {
 
     @Test
     void doGet_success() throws ServletException, IOException {
-        when(request.getSession()).thenReturn(session);
-        when(HttpSessionCartReader.getCartFromSession(session)).thenReturn(cart);
-        when(request.getRequestDispatcher(CartPageServlet.CART_JSP_PATH)).thenReturn(dispatcher);
+        setDoGetMocking();
 
         servlet.doGet(request, response);
 
         verify(dispatcher).forward(request,response);
+    }
+
+    @Test
+    void doGet_throwException() throws ServletException, IOException {
+        setDoGetMocking();
+        doThrow(new RuntimeException("test")).when(dispatcher).forward(request, response);
+
+        servlet.doGet(request, response);
+
+        verify(response).sendError(eq(HttpServletResponse.SC_NOT_FOUND), eq("test"));
+    }
+
+    private void setDoGetMocking() {
+        when(request.getSession()).thenReturn(session);
+        when(HttpSessionCartReader.getCartFromSession(session)).thenReturn(cart);
+        when(request.getRequestDispatcher(CartPageServlet.CART_JSP_PATH)).thenReturn(dispatcher);
     }
 
     @Test
@@ -120,5 +134,18 @@ public class CartPageServletTest {
         servlet.doPost(request, response);
 
         verify(response).sendRedirect(eq(TEST_CONTEXT_PATH + "/cart"));
+    }
+
+    @Test
+    void doPost_throwException() throws ServletException, IOException {
+        when(request.getSession()).thenThrow(new RuntimeException("test"));
+        when(request.getLocale()).thenReturn(Locale.US);
+        when(request.getContextPath()).thenReturn(TEST_CONTEXT_PATH);
+        when(request.getParameterValues(CartPageServlet.PARAMETER_PRODUCT_ID)).thenReturn(new String[]{PRODUCT_ID_STRING});
+        when(request.getParameterValues(CartPageServlet.PARAMETER_QUANTITY)).thenReturn(new String[]{QUANTITY_STRING});
+
+        servlet.doPost(request, response);
+
+        verify(response).sendRedirect(anyString());
     }
 }

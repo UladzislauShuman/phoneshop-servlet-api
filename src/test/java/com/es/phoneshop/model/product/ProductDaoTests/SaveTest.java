@@ -3,7 +3,7 @@ package com.es.phoneshop.model.product.ProductDaoTests;
 import com.es.phoneshop.model.product.ProductDaoTests.configuration.DemoDataInitializerHashMap;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
-import com.es.phoneshop.model.product.exceptions.ProductNotFoundException;
+import com.es.phoneshop.model.exceptions.ProductNotFoundException;
 import com.es.phoneshop.model.product.cunsomorder.Priority;
 import com.es.phoneshop.model.product.cunsomorder.PriorityOrderer;
 import org.junit.jupiter.api.*;

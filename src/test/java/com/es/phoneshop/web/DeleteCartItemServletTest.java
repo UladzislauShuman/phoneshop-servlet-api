@@ -2,9 +2,7 @@ package com.es.phoneshop.web;
 
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.cart.CartService;
-import com.es.phoneshop.model.cart.OutOfStockException;
-import com.es.phoneshop.model.cart.storage.HttpSessionCartReader;
-import com.es.phoneshop.model.product.Product;
+import com.es.phoneshop.utils.HttpSessionCartReader;
 import com.es.phoneshop.utils.RedirectPathFormater;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,17 +16,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
-import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class DeleteCartItemServletTest {
+
     @Mock
     private CartService cartService;
     @Mock
@@ -39,14 +35,12 @@ public class DeleteCartItemServletTest {
     private HttpSession session;
     @Mock
     private Cart cart;
-    @Mock
-    private Product product;
 
     @InjectMocks
     private DeleteCartItemServlet servlet;
 
     @Test
-    void doPost_deleteProductToCart() throws ServletException, IOException, OutOfStockException {
+    void doPost_deleteProductToCart() throws ServletException, IOException {
         when(request.getSession()).thenReturn(session);
         when(HttpSessionCartReader.getCartFromSession(session)).thenReturn(cart);
         when(request.getPathInfo()).thenReturn("/1");

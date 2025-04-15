@@ -9,6 +9,8 @@ import org.junit.platform.suite.api.Suite;
         DefaultRecentlyViewedProductsServiceTest.class,
         LinkedListRecentlyViewedProductsTest.class,
         CartTest.class,
-        DemoDataInitializerTest.class
+        DemoDataInitializerTest.class,
+        DefaultDosProtectionServiceTest.class,
+        DefaultOrderServiceTest.class
 })
 public class SuiteOfTests {}
