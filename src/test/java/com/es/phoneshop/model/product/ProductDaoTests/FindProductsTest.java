@@ -6,6 +6,7 @@ import com.es.phoneshop.model.product.ProductDao;
 import com.es.phoneshop.model.product.cunsomorder.Priority;
 import com.es.phoneshop.model.product.cunsomorder.PriorityOrderer;
 
+import com.es.phoneshop.utils.Constants;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -29,7 +30,7 @@ public class FindProductsTest {
     @MethodSource("com.es.phoneshop.model.product.ProductDaoTests.configuration.ProductDaoArgumentsProvider#productDaoProvider")
     @Priority(1)
     public void testFindProductsUnEmpty(ProductDao productDao) {
-        assertFalse(DemoDataInitializerHashMap.productDao.findProducts(null,null,null).isEmpty());
+        assertFalse(DemoDataInitializerHashMap.productDao.findProducts(Constants.nullString,Constants.nullString,Constants.nullString).isEmpty());
     }
 
     @ParameterizedTest
@@ -41,7 +42,7 @@ public class FindProductsTest {
                 DemoDataInitializerHashMap.productWithStockLessZero, // вынести в отдельный класс
                 DemoDataInitializerHashMap.productNullPrice
         );
-        assertTrue(productDao.findProducts(null,null,null).isEmpty());
+        assertTrue(productDao.findProducts(Constants.nullString,Constants.nullString,Constants.nullString).isEmpty());
     }
 
     private void initializeProductDaoWithProducts(ProductDao productDao,Product... products) {

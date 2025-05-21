@@ -6,6 +6,7 @@ import com.es.phoneshop.model.product.ProductDao;
 import com.es.phoneshop.model.exceptions.ProductNotFoundException;
 import com.es.phoneshop.model.product.cunsomorder.Priority;
 import com.es.phoneshop.model.product.cunsomorder.PriorityOrderer;
+import com.es.phoneshop.utils.Constants;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -76,6 +77,6 @@ public class SaveTest {
         productDao.save(
                 DemoDataInitializerHashMap.productWithSomeNullFields
         );
-        assertFalse(productDao.findProducts(null,null,null).isEmpty());
+        assertFalse(productDao.findProducts(Constants.nullString,Constants.nullString,Constants.nullString).isEmpty());
     }
 }

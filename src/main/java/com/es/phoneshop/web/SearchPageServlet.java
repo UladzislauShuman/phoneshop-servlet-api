@@ -1,8 +1,10 @@
 package com.es.phoneshop.web;
 
+import com.es.phoneshop.model.exceptions.InvalidPriceException;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
 import com.es.phoneshop.utils.LoggerHelper;
+import com.es.phoneshop.utils.RedirectPathFormater;
 import com.es.phoneshop.web.listeners.DependenciesServletContextListener;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
@@ -14,8 +16,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SearchPageServlet extends HttpServlet {
     public static final String EXCEPTIONS = "ServletException | IOException: %s";
@@ -26,6 +34,9 @@ public class SearchPageServlet extends HttpServlet {
     public static final String PARAMETER_ORDER = "order";
 
     private static final String SERVLET_EXCEPTION_PRODUCT_DAO_NULL = "PLP: ProductDao == null";
+    public static final String ATTRIBUTE_ERRORS = "errors";
+    public static final String NOT_A_NUMBER_OR_EMPTY = "Not a number or empty";
+    public static final String ERRO_MIN_PRICE = "min_price";
 
     private ProductDao productDao;
 
@@ -54,8 +65,9 @@ public class SearchPageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         LoggerHelper.logDoGet(logger, LoggerHelper.BEGIN);
         try {
-            setAttributesToRequest(request);
-            request.getRequestDispatcher(SEARCHPAGE_JSP_PATH).forward(request, response);
+            Map<String, String> errors = new HashMap<>();
+            setAttributesToRequest(request, errors);
+            redirectRequest(request, response, errors);
             LoggerHelper.logDoGet(logger, LoggerHelper.SUCCESS);
         } catch (Exception e) {
             LoggerHelper.logDoGet(logger, e);
@@ -63,16 +75,54 @@ public class SearchPageServlet extends HttpServlet {
         }
     }
 
-    private void setAttributesToRequest(HttpServletRequest request) {
-        request.setAttribute(ATTRIBUTE_PRODUCTS, getProductFromProductDao(request));
+    private void setAttributesToRequest(HttpServletRequest request, Map<String, String> errors) {
+
+        String query = null, minPriceString = null, maxPriceString = null;
+        getParameters(request, query, minPriceString, maxPriceString);
+        BigDecimal minPrice = null, maxPrice = null;
+        query = request.getParameter(PARAMETER_QUERY);
+        minPriceString = request.getParameter("min_price");
+        maxPriceString = request.getParameter("max_price");
+
+        DecimalFormat format = (DecimalFormat) NumberFormat.getInstance();
+        format.setParseBigDecimal(true);
+
+        try{
+            minPrice = (BigDecimal) format.parse(minPriceString);
+        }catch (ParseException e) {
+            LoggerHelper.logDoGet(logger, "Not a number");
+            errors.put(ERRO_MIN_PRICE, NOT_A_NUMBER_OR_EMPTY);
+        } catch (NullPointerException e) {
+            minPrice = null;
+        } catch (Exception e) {
+            errors.put(ERRO_MIN_PRICE, e.getMessage());
+        }
+
+        try {
+            maxPrice = (BigDecimal) format.parse(maxPriceString);
+        } catch (ParseException e) {
+
+            errors.put("max_price", NOT_A_NUMBER_OR_EMPTY);
+        } catch (NullPointerException e) {
+            maxPrice = null;
+        } catch (Exception e) {
+            errors.put("max_price", e.getMessage());
+        }
+
+        request.setAttribute(ATTRIBUTE_PRODUCTS, getProductFromProductDao(query, minPrice, maxPrice));
+        request.setAttribute(ATTRIBUTE_ERRORS, errors);
+    }
+    private void redirectRequest(HttpServletRequest request, HttpServletResponse response, Map<String, String> errors) throws IOException, ServletException {
+        //request.getSession().setAttribute(ATTRIBUTE_ERRORS, errors);
+        request.getRequestDispatcher(SEARCHPAGE_JSP_PATH).forward(request, response);
     }
 
-    private List<Product> getProductFromProductDao(HttpServletRequest request) {
-        return this.productDao.findProducts(
-                request.getParameter(PARAMETER_QUERY),
-                request.getParameter(PARAMETER_SORT),
-                request.getParameter(PARAMETER_ORDER)
-        );
+    private void getParameters(HttpServletRequest request, String query,String minPriceString,String maxPriceString) {
+
+    }
+
+    private List<Product> getProductFromProductDao(String query, BigDecimal minPrice, BigDecimal maxPrice) {
+        return this.productDao.findProducts(query, minPrice, maxPrice);
     }
 
 
