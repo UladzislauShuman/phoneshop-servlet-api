@@ -26,13 +26,11 @@ public class SearchPageServlet extends HttpServlet {
     public static final String PARAMETER_ORDER = "order";
 
     private static final String SERVLET_EXCEPTION_PRODUCT_DAO_NULL = "PLP: ProductDao == null";
-    private static final String SERVLET_EXCEPTION_RVM_SERVICE_NULL = "PLP: RecentlyViewedProductsService == null";
 
     private ProductDao productDao;
 
     private static final Logger logger = LoggerFactory.getLogger(SearchPageServlet.class);
     public static final String SEARCHPAGE_JSP_PATH = "/WEB-INF/pages/searchpage.jsp";
-    public static final String PARAMETER_NAME = "name";
 
 
     @Override
