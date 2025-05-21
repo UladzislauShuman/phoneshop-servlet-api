@@ -80,7 +80,7 @@ public class SearchPageServlet extends HttpServlet {
         String query = null, minPriceString = null, maxPriceString = null;
         getParameters(request, query, minPriceString, maxPriceString);
         BigDecimal minPrice = null, maxPrice = null;
-        query = request.getParameter(PARAMETER_QUERY);
+        query = request.getParameter("description");
         minPriceString = request.getParameter("min_price");
         maxPriceString = request.getParameter("max_price");
 
