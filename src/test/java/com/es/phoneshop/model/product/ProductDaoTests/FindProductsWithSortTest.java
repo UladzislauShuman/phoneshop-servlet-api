@@ -5,6 +5,7 @@ import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
 import com.es.phoneshop.model.enums.SortField;
 import com.es.phoneshop.model.enums.SortOrder;
+import com.es.phoneshop.utils.Constants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -103,8 +104,8 @@ public class FindProductsWithSortTest {
         List<Product> productsDemo = DemoDataInitializerHashMap.getDemoData_Samsung_Galaxy_S_II();
         List<Product> productsDao = productDao.findProducts(
                 "Samsung Galaxy S II",
-                null,
-                null
+                Constants.nullString,
+                Constants.nullString
         );
 
         if (isProductsDaoAndDemoEqualSize(productsDao,productsDemo))

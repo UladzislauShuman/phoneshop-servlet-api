@@ -66,7 +66,7 @@ public class ProductListPageServletTest {
         when(servletContext.getAttribute(DependenciesServletContextListener.ATTRIBUTE_PRODUCT_DAO)).thenReturn(productDao);
         when(servletContext.getAttribute(DependenciesServletContextListener.ATTRIBUTE_RECENTLY_VIEWED_PRODUCTS_SERVICE)).thenReturn(recentlyViewedProductsService);
         when(request.getRequestDispatcher(PRODUCT_LIST_JSP_PATH)).thenReturn(requestDispatcher);
-        when(productDao.findProducts(any(), any(), any())).thenReturn(Collections.emptyList());
+        when(productDao.findProducts(anyString(), anyString(), anyString())).thenReturn(Collections.emptyList());
         when(recentlyViewedProductsService.createRecentlyViewedProducts(any())).thenReturn(recentlyViewedProducts);
         when(recentlyViewedProducts.getRecentlyViewedProductsList()).thenReturn(Collections.emptyList());
         when(request.getSession()).thenReturn(session);

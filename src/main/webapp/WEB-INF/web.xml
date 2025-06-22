@@ -123,4 +123,15 @@
   </error-page>
   <!--лекция 2-->
 
+  <!-- Coding task-->
+  <servlet>
+    <servlet-name>searchPageServlet</servlet-name>
+    <servlet-class>com.es.phoneshop.web.SearchPageServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>searchPageServlet</servlet-name>
+    <url-pattern>/searchpage/*</url-pattern>
+  </servlet-mapping>
+
 </web-app>

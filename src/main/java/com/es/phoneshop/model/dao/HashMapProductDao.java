@@ -7,12 +7,14 @@ import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
 import org.apache.maven.shared.utils.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -203,5 +205,45 @@ public class HashMapProductDao extends HashMapItemDao<Product, Long, ProductNotF
         if (item == null) {
             throw new ProductNotFoundException(getSaveNullItemMessage());
         }
+    }
+
+    @Override
+    public List<Product> findProducts(String query, BigDecimal minPrice, BigDecimal maxPrice) {
+        this.lock.readLock().lock();
+        try {
+            return findProductsInternal(
+                    query,
+                    minPrice,
+                    maxPrice
+            );
+        } finally {
+            this.lock.readLock().unlock();
+        }
+    }
+
+    private List<Product> findProductsInternal(String query, BigDecimal minPrice, BigDecimal maxPrice) {
+        List<Product> filteredProducts = getFilteredProducts(query);
+        Predicate<Product> predicate = getMinMaxPricePredicate(minPrice, maxPrice);
+        Comparator<Product> comparator = Comparator.comparing(Product::getPrice, Comparator.nullsLast(Comparator.naturalOrder()));
+
+        if (true) {
+            return filteredProducts.stream()
+                    .filter(predicate)
+                    .sorted(comparator)
+                    .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>(filteredProducts);
+        }
+    }
+
+    private Predicate<Product> getMinMaxPricePredicate(BigDecimal minPrice, BigDecimal maxPrice) {
+        return product -> {
+            if (product.getPrice() == null) {
+                return false;
+            }
+            boolean matchesMin = minPrice == null || product.getPrice().compareTo(minPrice) >= 0;
+            boolean matchesMax = maxPrice == null || product.getPrice().compareTo(maxPrice) <= 0;
+            return matchesMin && matchesMax;
+        };
     }
 }

@@ -2,6 +2,7 @@ package com.es.phoneshop.model.product;
 
 import com.es.phoneshop.model.exceptions.ProductNotFoundException;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface ProductDao {
@@ -11,4 +12,5 @@ public interface ProductDao {
     void delete(Long id);
     void clear();
     boolean isEmpty();
+    List<Product> findProducts(String query, BigDecimal minPrice, BigDecimal maxPrice);
 }

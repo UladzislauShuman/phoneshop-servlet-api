@@ -4,6 +4,7 @@ import com.es.phoneshop.model.product.ProductDaoTests.configuration.DemoDataInit
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
 import com.es.phoneshop.model.exceptions.ProductNotFoundException;
+import com.es.phoneshop.utils.Constants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -35,8 +36,7 @@ public class ConcurrentTest {
                     Currency usd = Currency.getInstance("USD");
                     Product product_ = DemoDataInitializerHashMap.product;
                     productDao.save(product_);
-
-                    List<Product> products = productDao.findProducts(null,null,null);
+                    List<Product> products = productDao.findProducts(Constants.nullString,Constants.nullString,Constants.nullString);
                     if (!products.isEmpty()) {
                         productDao.delete(products.get(0).getId());
                     }
@@ -45,7 +45,7 @@ public class ConcurrentTest {
                             productDao.getProduct(products.get(0).getId());
                         } catch (ProductNotFoundException ignored) {}
                     }
-                    productDao.findProducts(null,null,null);
+                    productDao.findProducts(Constants.nullString,Constants.nullString,Constants.nullString);
                 } catch (ProductNotFoundException e) {
                     return; //
                 } finally {
@@ -55,7 +55,7 @@ public class ConcurrentTest {
         }
         latch.await();
         executorService.shutdown();
-        assertFalse(productDao.findProducts(null,null,null).contains(null));
-        assertTrue(productDao.findProducts(null,null,null).size() >= 0);
+        assertFalse(productDao.findProducts(Constants.nullString,Constants.nullString,Constants.nullString).contains(null));
+        assertTrue(productDao.findProducts(Constants.nullString,Constants.nullString,Constants.nullString).size() >= 0);
     }
 }
